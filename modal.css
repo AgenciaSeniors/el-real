@@ -1,0 +1,224 @@
+/* --- modal.css (VERSIÓN EL REAL - ROSA NEÓN) --- */
+
+/* 1. Fondo Oscuro con Desenfoque (Glassmorphism) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Fondo muy oscuro */
+    backdrop-filter: blur(8px);      /* Efecto borroso elegante */
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Estado activo para mostrar el modal */
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 2. La Tarjeta del Producto */
+.modal-card {
+    background: #111; /* Negro suave */
+    width: 90%;
+    max-width: 400px;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(255, 0, 127, 0.15); /* Sombra Rosa sutil */
+    border: 1px solid rgba(255, 0, 127, 0.2); /* Borde fino Rosa */
+    
+    /* Animación de entrada: empieza abajo y sube */
+    transform: translateY(100px) scale(0.9);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estado activo de la tarjeta */
+.modal-overlay.active .modal-card {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* 3. Contenedor de la Imagen */
+.modal-image-wrapper {
+    width: 100%;
+    height: 250px; 
+    position: relative;
+    /* Desvanecer la imagen hacia el negro del fondo */
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+.modal-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Botón cerrar flotante */
+.btn-close-modal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    transition: transform 0.2s;
+}
+.btn-close-modal:hover {
+    background: #ff007f; /* Se pone rosa al pasar el mouse */
+    border-color: #ff007f;
+}
+.btn-close-modal:active { transform: scale(0.9); }
+
+/* 4. Contenido del Texto */
+.modal-body-content {
+    padding: 0 25px 25px 25px;
+    margin-top: -40px; /* Sube el texto sobre la imagen */
+    position: relative;
+    z-index: 5;
+}
+
+.modal-title-elegant {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: 5px;
+    line-height: 1.1;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+}
+
+/* PRECIO EN ROSA NEÓN */
+.modal-price-tag {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ff007f; /* Rosa El Real */
+    margin-bottom: 15px;
+    display: block;
+    text-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+}
+
+.modal-description {
+    color: #ccc;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    max-height: 120px;
+    overflow-y: auto; 
+}
+
+/* Caja de Valoración / Opiniones */
+.ia-badge {
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 0, 127, 0.2); /* Borde Rosa suave */
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.ia-badge:hover {
+    border-color: #ff007f;
+    background: rgba(255, 0, 127, 0.05);
+}
+
+/* Botón de acción principal (Dejar Opinión / Calificar) */
+.btn-modal-action {
+    width: 100%;
+    padding: 16px;
+    background: #ff007f; /* Rosa El Real */
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    color: white;
+    transition: 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 15px rgba(255, 0, 127, 0.3);
+}
+.btn-modal-action:hover {
+    background: #d4006a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 0, 127, 0.5);
+}
+.btn-modal-action:active { transform: scale(0.98); }
+/* =========================================
+   SOLUCIÓN NUCLEAR: REDUCCIÓN DE TÍTULO
+   (Pegar al final de modal.css)
+   ========================================= */
+
+/* 1. FORZAR TÍTULO PEQUEÑO Y PEGADITO */
+/* Usamos todos los selectores posibles para ganar la "guerra" de estilos */
+.modal-card h2,
+.modal-card h3,
+.modal-title-elegant,
+div.modal-body-content h2 {
+    /* Tamaño de letra drásticamente menor */
+    font-size: 1.25rem !important; /* Aprox 20px (antes era gigante) */
+    
+    /* Altura de línea apretada */
+    line-height: 1.1 !important;
+    
+    /* ELIMINAR TODOS LOS MÁRGENES */
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    
+    /* Asegurar que no tenga ancho fijo que lo rompa */
+    width: 100% !important;
+    text-align: left !important;
+}
+
+/* 2. EL PRECIO (Ajustarlo para que no estorbe) */
+.modal-price-tag {
+    font-size: 1.1rem !important;
+    margin-top: 0 !important;
+    margin-bottom: 10px !important; /* Pequeño espacio antes de la descripción */
+    display: block !important;
+}
+
+/* 3. CAJA NEGRA DE OPINIONES (Hacerla "flaca") */
+.ia-badge {
+    padding: 5px 12px !important; /* Muy poco relleno */
+    min-height: 35px !important;  /* Altura mínima reducida */
+    margin-bottom: 10px !important;
+    margin-top: 0 !important;
+}
+
+/* 4. LA DESCRIPCIÓN (¡DALE PRIORIDAD!) */
+.modal-description {
+    font-size: 0.95rem !important;
+    line-height: 1.4 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    
+    /* Aseguramos que se estire */
+    flex-grow: 1 !important;
+    min-height: 50px !important;
+}

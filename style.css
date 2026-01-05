@@ -1,0 +1,1478 @@
+:root {
+    /* --- PALETA EL REAL --- */
+    
+    /* Gris oscuro elegante (inspirado en las paredes y muebles) */
+    --bg-main: #18181b;       
+    --bg-surface: #222225;    /* Un gris un poco más claro para las tarjetas */
+    
+    /* El Rosa/Magenta del Logo */
+    --real-pink: #ff007f;          
+    --real-glow: rgba(255, 0, 127, 0.4);
+    
+    --text-primary: #f0f0f0;
+    --text-secondary: #cccccc;
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* Colores de estado */
+    --red-danger: #ff5252;
+    --green-success: #00e676;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body { 
+    background-color: var(--bg-main); 
+    background-image: radial-gradient(circle at 50% 0%, #2a2a30 0%, var(--bg-main) 70%); /* Degradado gris sutil */
+    color: var(--text-primary); 
+    font-family: 'Montserrat', sans-serif; 
+    padding-bottom: 100px;
+    overflow-x: hidden;
+}
+
+/* --- ENCABEZADO "EL REAL" (Ajuste Radical) --- */
+
+.hero-real {
+    /* Altura automática pero con un mínimo para centrar bien */
+    height: auto;
+    min-height: 250px; 
+    
+    /* Flexbox para centrar todo PERFECTAMENTE en el medio */
+    display: flex;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    
+    padding: 20px 0;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background-color: #000;
+    border-bottom: 3px solid var(--real-pink);
+}
+
+
+.hero-bg-cover {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center; /* Enfocamos las copas */
+    filter: brightness(0.7) contrast(1.2); /* Un poco más oscuro para que resalte el texto */
+    z-index: 0;
+}
+
+/* --- OSCURECIMIENTO GENERAL PARA RESALTAR LOGO --- */
+.dark-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* EL CAMBIO ESTÁ AQUÍ: */
+    /* Arriba (0%): 50% de negro (rgba 0,0,0, 0.5) -> Ayuda a ver el logo */
+    /* Abajo (100%): 95% de negro (rgba 0,0,0, 0.95) -> Ayuda a ver textos */
+    background: linear-gradient(
+        to bottom, 
+        rgba(0, 0, 0, 0.5) 0%, 
+        rgba(0, 0, 0, 0.95) 100%
+    );
+    
+    /* Sin borrosidad para nitidez */
+    backdrop-filter: none; 
+    z-index: 1;
+}
+/* CONTENEDOR CENTRAL */
+.brand-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    /* TRUCO: Subimos todo el bloque un poco para centrarlo en la franja */
+    margin-top: -10px; 
+}
+
+/* 1. EL LOGO (GIGANTE) */
+.logo-unificado {
+    /* Altura base grande */
+    height: 180px !important; 
+    width: auto !important;
+    
+    /* LO HACEMOS AÚN MÁS GRANDE CON ZOOM */
+    transform: scale(1.6); 
+    
+    filter: drop-shadow(0 0 20px rgba(255, 0, 127, 0.6));
+    
+    /* Separación correcta para que no se monte encima del texto */
+    margin-bottom: -20px !important; 
+    margin-top: 70px !important;
+    
+    position: relative;
+    z-index: 10;
+}
+.brand-text h1 {
+    display: none; /* Ocultamos el texto H1 porque el logo ya tiene el nombre "El Real" */
+}
+
+
+/* 2. SUBTÍTULO (CHIQUITO) */
+.brand-subtitle {
+    display: block !important;
+    color: #fff;
+    
+    /* Letra pequeña y fina para contraste */
+    font-size: 0.75rem !important; 
+    font-weight: 400 !important;
+    letter-spacing: 4px !important; /* Muy espaciado */
+    text-transform: uppercase;
+    
+    margin: 20px !important;
+    margin-bottom: 30px !important; /* Espacio antes del horario */
+    margin-top: -20px !important;
+    text-shadow: 0 2px 4px #000;
+   position: relative !important;
+    z-index: 10;
+}
+/* 3. HORARIO CON PUNTITO ANIMADO (Recuperado de Casona) */
+.header-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre el puntito y el texto */
+    
+    background: rgba(255, 0, 127, 0.1); /* Fondo rosa suave */
+    border: 1px solid rgba(255, 0, 127, 0.3); /* Borde rosa */
+    padding: 6px 15px;
+    border-radius: 50px;
+    
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    
+    position: relative;
+    z-index: 10;
+}
+/* EL PUNTITO QUE PULSA (ANIMACIÓN) */
+.header-info::before {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--real-pink); /* Color Rosa */
+    box-shadow: 0 0 10px var(--real-pink);
+    
+    /* La misma animación de La Casona, pero en rosa */
+    animation: pulse-pink 2s infinite;
+}
+
+/* Definición de la animación */
+@keyframes pulse-pink {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 0, 127, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(255, 0, 127, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(255, 0, 127, 0);
+    }
+}
+/* --- BUSCADOR --- */
+.search-wrapper { padding: 0 20px; margin-top: -25px; position: relative; z-index: 20; }
+.search-box { 
+    background: rgba(40, 40, 45, 0.95); 
+    border: 1px solid rgba(255,0,127,0.3); /* Borde rosa sutil */
+    border-radius: 50px; 
+    display: flex; 
+    align-items: center; 
+    padding: 5px 20px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+}
+#search-input { width: 100%; padding: 12px 0; background: transparent; border: none; color: white; font-size: 1rem; outline: none; }
+.search-icon { color: var(--real-pink); margin-right: 10px;}
+
+/* --- FILTROS --- */
+.filters-container {
+    position: sticky; top: 0; z-index: 90;
+    background: rgba(24, 24, 27, 0.95); /* Fondo gris oscuro */
+    backdrop-filter: blur(10px);
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.filters { display: flex; gap: 10px; padding: 0 20px; overflow-x: auto; scrollbar-width: none; }
+
+.filter-btn { 
+    background: transparent; 
+    color: #aaa; 
+    border: 1px solid rgba(255,255,255,0.1); 
+    padding: 8px 20px; 
+    border-radius: 100px; 
+    white-space: nowrap; 
+    cursor: pointer; 
+    transition: 0.3s;
+    font-family: 'Montserrat', sans-serif;
+}
+.filter-btn.active { 
+    background: var(--real-pink); 
+    color: white; 
+    border-color: var(--real-pink); 
+    font-weight: 700; 
+    box-shadow: 0 0 15px var(--real-glow); 
+}
+
+/* --- TARJETAS (CARDS) --- */
+.container { padding: 25px 20px; }
+.category-section { margin-bottom: 40px; }
+
+.category-title-real {
+    color: #fff;
+    font-size: 1.5rem;
+    padding: 0 10px;
+    margin-bottom: 20px;
+    font-family: 'Playfair Display', serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.category-title-real::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--real-pink), transparent);
+}
+
+.horizontal-scroll {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px;
+    padding: 5px;
+}
+@media (min-width: 768px) {
+    .horizontal-scroll { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+}
+
+.card-real {
+    background: var(--bg-surface); /* Fondo gris tarjeta */
+    border-radius: 15px; /* Bordes menos redondeados para verse más "Real/Clásico" */
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+}
+.card-real:active { transform: scale(0.98); }
+
+.card-img-container { height: 150px; position: relative; }
+.card-img-container img { width: 100%; height: 100%; object-fit: cover; }
+
+.tag-destacado {
+    position: absolute; top: 10px; right: 10px; left: auto;
+    background: var(--real-pink); color: white;
+    font-size: 0.6rem; font-weight: 800; padding: 4px 10px; border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.card-body { padding: 15px; }
+.card-body h3 { font-size: 1rem; color: #fff; margin-bottom: 8px; font-family: 'Playfair Display', serif; }
+
+.card-footer { display: flex; justify-content: space-between; align-items: center; }
+.card-price { color: var(--real-pink); font-weight: 700; font-size: 1.1rem; }
+
+/* Agotado */
+.card-real.is-agotado { opacity: 0.6; filter: grayscale(90%); pointer-events: none; }
+.badge-agotado-real {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-10deg);
+    border: 2px solid white; color: white; background: #444;
+    padding: 5px 10px; font-weight: 800; font-size: 0.9rem; z-index: 20;
+}
+
+/* --- MODAL --- */
+/* Reutilizamos modal.css pero sobreescribimos colores aquí si es necesario */
+.btn-dejar-opinion-principal {
+    background-color: var(--real-pink) !important;
+    color: white !important;
+}
+
+/* --- FOOTER --- */
+footer {
+    background: #111;
+    border-top: 1px solid #333;
+    padding: 40px 20px;
+    text-align: center;
+}
+.admin-button-premium {
+    border-color: var(--real-pink);
+    color: var(--real-pink);
+    background: rgba(255, 0, 127, 0.05);
+}
+.admin-button-premium:hover {
+    background: var(--real-pink);
+    color: white;
+}
+/* =========================================
+   CORRECCIÓN TAMAÑO FOTO MODAL (EL REAL)
+   ========================================= */
+
+.modal-image-container {
+    width: 100%;
+    /* Altura fija: Aquí controlamos que no sea gigante. 
+       250px es ideal para móviles y PC. */
+    height: 250px; 
+    
+    overflow: hidden;
+    position: relative;
+    border-bottom: 2px solid var(--real-pink); /* Detalle estético rosa */
+}
+
+.modal-img {
+    width: 100%;
+    height: 100%;
+    
+    /* IMPORTANTE: 'cover' hace que la foto llene el espacio 
+       recortando lo que sobre, sin estirarse ni verse pixelada */
+    object-fit: cover; 
+    
+    /* Centramos la foto para que se vea lo más importante */
+    object-position: center; 
+    display: block;
+}
+
+/* Ajuste para celulares pequeños para que quepa más texto */
+@media (max-width: 480px) {
+    .modal-image-container {
+        height: 200px; /* Un poco más pequeña en móvil */
+    }
+}
+/* =========================================
+   ARREGLO DE MODALES Y BOTONES (EL REAL)
+   ========================================= */
+
+/* 1. OCULTAR EL FORMULARIO DE OPINIÓN POR DEFECTO */
+/* Esto evita que salga abajo en el footer */
+.modal {
+    display: none; /* ¡Vital! Lo oculta hasta que hagas clic */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+/* Cuando Javascript le pone la clase active, se muestra */
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: #18181b;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 0, 127, 0.3); /* Borde rosa sutil */
+    position: relative;
+    padding: 30px;
+}
+
+/* 2. ESTILO DEL BOTÓN "CALIFICAR" (Rosa y Ancho Completo) */
+.btn-dejar-opinion-principal {
+    display: block;
+    width: 100%;         /* Ocupa todo el ancho */
+    margin-top: 20px;    /* Espacio arriba */
+    padding: 15px;
+    
+    background-color: var(--real-pink); /* Rosa El Real */
+    color: white;
+    
+    border: none;
+    border-radius: 50px; /* Bordes redondos elegantes */
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 0, 127, 0.3); /* Brillo rosa */
+    transition: transform 0.2s;
+}
+
+.btn-dejar-opinion-principal:active {
+    transform: scale(0.98);
+}
+/* =========================================
+   REDSEÑO TOTAL MODAL DE OPINIÓN (EL REAL)
+   ======= PEGAR AL FINAL DE STYLE.CSS ====== */
+
+/* 1. El Contenedor de la Tarjeta */
+.modal-content-opinion-elegant {
+    background: #222225; /* Gris oscuro elegante */
+    border: 1px solid rgba(255, 0, 127, 0.3); /* Borde rosa sutil */
+    border-radius: 20px;
+    padding: 40px 30px;
+    text-align: center;
+    position: relative; /* ¡IMPORTANTE PARA LA CRUZ! */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    max-width: 450px;
+    width: 90%;
+    animation: slideUpFade 0.3s ease-out;
+}
+
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 2. La Cruz de Cerrar (Posicionada en la esquina) */
+.close-cross-corner {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 2rem;
+    color: #888;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.05); /* Fondo circular sutil */
+}
+.close-cross-corner:hover {
+    color: var(--real-pink);
+    background: rgba(255, 0, 127, 0.1);
+    transform: rotate(90deg); /* Efecto de giro al pasar el mouse */
+}
+
+/* 3. Título */
+.modal-content-opinion-elegant h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--real-pink);
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+/* 4. Estrellas Grandes */
+.stars-elegant {
+    font-size: 3.5rem;
+    color: #444; /* Color apagado inicial */
+    cursor: pointer;
+    margin-bottom: 30px;
+    display: inline-block;
+}
+/* El color rosa al seleccionarlas lo maneja el JS, esto es para el hover */
+.stars-elegant span:hover { 
+    color: rgba(255, 0, 127, 0.6); 
+    transform: scale(1.1);
+}
+
+/* 5. Inputs (Nombre y Comentario) Modernos */
+.input-group-elegant {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group-elegant input,
+.input-group-elegant textarea {
+    width: 100%;
+    background: #18181b; /* Fondo más oscuro que la tarjeta */
+    border: 2px solid #333;
+    border-radius: 12px;
+    padding: 16px;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.input-group-elegant input::placeholder,
+.input-group-elegant textarea::placeholder { color: #777; }
+
+/* Efecto al hacer clic en el input */
+.input-group-elegant input:focus,
+.input-group-elegant textarea:focus {
+    border-color: var(--real-pink);
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.2);
+    background: #202023;
+}
+
+.input-group-elegant textarea {
+    resize: none;
+    height: 110px;
+}
+
+/* 6. El Botón "ENVIAR" Grande y Rosa */
+.btn-submit-elegant {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(45deg, var(--real-pink), #d4006a); /* Degradado rosa */
+    color: white;
+    border: none;
+    border-radius: 50px; /* Bordes muy redondos */
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(255, 0, 127, 0.3);
+    transition: transform 0.2s, box-shadow 0.3s;
+    margin-top: 15px;
+}
+.btn-submit-elegant:hover {
+    box-shadow: 0 15px 30px rgba(255, 0, 127, 0.5);
+    transform: translateY(-2px);
+}
+.btn-submit-elegant:active {
+    transform: scale(0.98) translateY(0); /* Efecto de click */
+}
+.btn-submit-elegant:disabled {
+    background: #555;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+/* =========================================
+   VERSIÓN COMPACTA: MODAL DETALLE (EL REAL)
+   ========================================= */
+
+.modal-info-container {
+    /* Reducimos el relleno: suficiente para que no toque bordes, 
+       pero sin desperdiciar espacio */
+    padding: 20px 25px; 
+    background: #18181b;
+    position: relative;
+}
+
+/* Título y Precio más pegaditos al techo */
+.modal-header-row {
+    margin-bottom: 10px !important; /* Antes era 20px */
+    padding-bottom: 5px;
+    align-items: center; /* Alineación vertical perfecta */
+}
+
+/* Ajustamos tamaño de letra para ahorrar espacio */
+.modal-title-elegant {
+    font-size: 1.3rem; /* Un poco más pequeño y manejable */
+}
+
+.modal-price-tag {
+    font-size: 1.2rem;
+}
+
+/* Descripción compacta */
+.modal-description {
+    margin-bottom: 15px !important; /* Menos espacio antes de las estrellas */
+    line-height: 1.4 !important;    /* Texto normal, no tan expandido */
+    font-size: 0.9rem;
+    color: #d0d0d0;
+    
+    /* TRUCO: Si el texto es muy largo, que haga scroll 
+       dentro de una cajita pequeña en vez de estirar todo el modal */
+    max-height: 100px; 
+    overflow-y: auto; 
+}
+
+/* Hacemos la caja de estrellas más delgada */
+.valoracion-box-elegant {
+    margin: 12px 0;      /* Menos margen vertical */
+    padding: 8px 15px;   /* Caja más fina */
+}
+
+/* Botón un poco menos alto */
+.btn-dejar-opinion-principal {
+    margin-top: 15px;
+    padding: 12px;      /* Reducimos de 15px a 12px */
+    font-size: 0.9rem;
+}
+/* =========================================
+   MODAL MÁS PEQUEÑO EN CELULARES
+   ========================================= */
+
+@media (max-width: 480px) {
+    /* 1. Hacemos la tarjeta un poco más ancha para aprovechar pantalla */
+    .modal-card {
+        width: 95%; /* Ocupa casi todo el ancho */
+        max-height: 90vh; /* Que no se salga de la pantalla verticalmente */
+    }
+
+    /* 2. Reducimos la altura de la foto drásticamente */
+    .modal-image-container {
+        height: 160px !important; /* Bajamos de 250px a 160px */
+    }
+
+    /* 3. Reducimos el espacio interno del texto */
+    .modal-info-container {
+        padding: 15px 20px !important; /* Más compacto */
+    }
+
+    /* 4. Texto más pequeño */
+    .modal-title-elegant {
+        font-size: 1.2rem !important; /* Título más chico */
+    }
+    
+    .modal-price-tag {
+        font-size: 1.1rem !important;
+    }
+
+    /* 5. Descripción más corta visualmente */
+    .modal-description {
+        font-size: 0.85rem !important;
+        margin-bottom: 10px !important;
+        max-height: 80px; /* Menos scroll */
+    }
+    
+    /* 6. Botón más compacto */
+    .btn-dejar-opinion-principal {
+        margin-top: 10px;
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+}
+/* =========================================
+   MODAL "TODO A LA VISTA" (EL REAL)
+   ========================================= */
+
+/* 1. EL CONTENEDOR PRINCIPAL (La Tarjeta) */
+.modal-card {
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    max-width: 450px;
+    /* Altura máxima fija para que quepa en pantalla sin salirse */
+    max-height: 85vh; 
+    height: auto;
+    overflow: hidden; /* IMPORTANTE: Evita scroll en la tarjeta completa */
+    background: #18181b;
+}
+
+/* 2. LA IMAGEN (Tamaño fijo y compacto) */
+.modal-image-container {
+    width: 100%;
+    /* Altura fija reducida para dejar espacio al contenido */
+    height: 160px; 
+    flex-shrink: 0; /* Prohibido encogerse */
+}
+
+/* 3. EL CUERPO DE CONTENIDO (Organizador Flex) */
+.modal-info-container {
+    flex: 1; /* Ocupa todo el espacio restante debajo de la foto */
+    display: flex;
+    flex-direction: column; /* Organiza los elementos en columna vertical */
+    padding: 15px 20px;
+    overflow: hidden; /* Lo que sobre, se corta (se maneja dentro) */
+}
+
+/* 4. ELEMENTOS FIJOS (No se mueven) */
+.modal-header-row {
+    flex-shrink: 0; /* No se aplasta */
+    margin-bottom: 10px;
+}
+.valoracion-box-elegant {
+    flex-shrink: 0; /* No se aplasta */
+    margin: 10px 0;
+}
+.btn-dejar-opinion-principal {
+    flex-shrink: 0; /* No se aplasta */
+    margin-top: 0;
+}
+
+/* 5. LA DESCRIPCIÓN (¡La única que hace Scroll!) */
+.modal-description {
+    /* Toma todo el espacio disponible entre el título y las estrellas */
+    flex-grow: 1; 
+    
+    /* Activa el scroll SOLO aquí si el texto es largo */
+    overflow-y: auto; 
+    
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #d0d0d0;
+    padding-right: 5px; /* Espacio para que el scroll no tape texto */
+}
+
+/* 6. AJUSTE EXTREMO PARA CELULARES PEQUEÑOS */
+@media (max-width: 380px) {
+    .modal-image-container {
+        height: 130px; /* Foto aún más chica en pantallas muy cortas */
+    }
+    .modal-title-elegant {
+        font-size: 1.2rem;
+    }
+    .modal-info-container {
+        padding: 12px 15px;
+    }
+}
+/* --- SEPARACIÓN DEL BOTÓN DE CALIFICAR --- */
+
+.btn-dejar-opinion-principal {
+    flex-shrink: 0; /* No se aplasta */
+    
+    /* AQUÍ ESTÁ EL CAMBIO: */
+    margin-top: 20px !important; /* 20px de aire arriba del botón */
+    
+    background-color: var(--real-pink);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 50px;
+    font-weight: 800;
+    text-transform: uppercase;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Opcional: También aseguramos que la caja de reseñas tenga margen abajo */
+.valoracion-box-elegant {
+    flex-shrink: 0;
+    margin-top: 10px;
+    margin-bottom: 10px; /* Espacio extra por si acaso */
+}
+/* =========================================
+   REPARACIÓN LOGIN - ESTILO "EL REAL"
+   ========================================= */
+
+/* Fondo general de la página de login */
+.login-wrapper {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Fondo oscuro con un toque rojizo muy sutil en el centro */
+    background: radial-gradient(circle at center, #1a0b10 0%, #000000 100%);
+    padding: 20px;
+}
+
+/* La tarjeta central */
+.login-card {
+    background: #111; /* Fondo negro suave */
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 20px;
+    border: 1px solid #333;
+    box-shadow: 0 0 40px rgba(255, 0, 127, 0.1); /* Resplandor rosa sutil */
+    text-align: center;
+    position: relative;
+}
+
+/* Título del Logo */
+.login-logo {
+    font-family: 'Playfair Display', serif;
+    color: #ff007f; /* Rosa El Real */
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+    margin-top: 0;
+    text-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+}
+
+/* Subtítulo */
+.login-subtitle {
+    color: #888;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 35px;
+}
+
+/* Inputs (Usuario y Contraseña) */
+.input-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    color: #ddd; /* Texto gris claro */
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Cuadros de texto oscuros (Adiós al fondo blanco) */
+.input-stylish {
+    width: 100%;
+    padding: 14px;
+    background: #1f1f1f; /* Fondo gris oscuro */
+    border: 1px solid #333;
+    border-radius: 10px;
+    color: white; /* Letra blanca */
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Efecto al tocar el input */
+.input-stylish:focus {
+    border-color: #ff007f; /* Borde rosa */
+    background: #252525;
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+}
+
+/* Botón de Iniciar Sesión */
+.btn-login-real {
+    width: 100%;
+    padding: 16px;
+    margin-top: 15px;
+    background: linear-gradient(45deg, #ff007f, #d4006a); /* Degradado Rosa */
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 0, 127, 0.3);
+    transition: transform 0.2s;
+}
+
+.btn-login-real:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(255, 0, 127, 0.5);
+}
+
+.btn-login-real:active {
+    transform: scale(0.98);
+}
+
+/* Enlace de volver */
+.back-link {
+    display: block;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #222;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.3s;
+}
+.back-link:hover {
+    color: #ff007f;
+}
+/* =========================================
+   DISEÑO FINAL ADMIN "EL REAL" (Corregido)
+   ========================================= */
+
+/* Fondo general */
+body.admin-body {
+    background: #050505; /* Casi negro absoluto */
+    background-image: radial-gradient(circle at 50% 0%, #1a050d 0%, #000 80%); /* Luz rosa muy tenue arriba */
+    min-height: 100vh;
+}
+
+/* 1. HEADER GERENCIAL */
+.admin-header {
+    background: rgba(15, 15, 15, 0.95);
+    border-bottom: 1px solid rgba(255, 0, 127, 0.3); /* Línea rosa */
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.admin-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: white;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-badge {
+    background: #ff007f; /* Rosa Fuerte */
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+}
+
+/* 2. ESTRUCTURA (GRID) */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr; /* Columna izq fija, der flexible */
+    gap: 30px;
+    padding: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* En móviles, una sola columna */
+@media (max-width: 900px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+/* 3. ZONAS (Tarjetas oscuras) */
+.upload-zone, .inventory-zone {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Títulos de sección */
+.upload-zone h3, .inventory-zone h3 {
+    color: #ff007f; /* Títulos Rosas */
+    font-family: 'Playfair Display', serif;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+/* 4. FORMULARIOS E INPUTS */
+.input-group { margin-bottom: 15px; }
+
+.input-group label {
+    display: block;
+    color: #aaa;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+/* Estilo unificado para Inputs, Selects y Textareas */
+.input-stylish {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: 'Montserrat', sans-serif;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.input-stylish:focus {
+    border-color: #ff007f;
+    background: #222;
+    box-shadow: 0 0 0 3px rgba(255, 0, 127, 0.1);
+}
+
+/* Arreglo específico para el SELECT (la flechita) */
+select.input-stylish {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ff007f%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 12px auto;
+    cursor: pointer;
+}
+
+/* 5. ZONA DE SUBIDA DE FOTO */
+.file-upload-wrapper {
+    border: 2px dashed #333;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.3);
+    transition: 0.3s;
+    min-height: 120px;
+}
+.file-upload-wrapper:hover {
+    border-color: #ff007f;
+    background: rgba(255, 0, 127, 0.05);
+}
+
+/* 6. BOTONES */
+.btn-big-action {
+    background: #ff007f;
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    transition: 0.3s;
+}
+.btn-big-action:hover {
+    background: #d4006a;
+    box-shadow: 0 5px 15px rgba(255, 0, 127, 0.3);
+}
+
+.inventory-item {
+    /* Asegura que el ítem sea una fila horizontal */
+    display: flex;
+    flex-direction: row !important; 
+    align-items: center !important;
+    justify-content: space-between !important; /* Texto a la izq, botones a la der */
+    
+    background: #181818;
+    border-bottom: 1px solid #333;
+    padding: 15px;
+    gap: 15px;
+}
+.inventory-item:hover {
+    background: #202020;
+    border-left: 3px solid #ff007f;
+}
+
+.item-title { color: white; font-weight: 600; display: block; margin-bottom: 4px; }
+.item-price { color: #ff007f; font-weight: 700; font-size: 0.9rem; }
+.item-thumb { border-radius: 6px; border: 1px solid #333; width: 50px; height: 50px; object-fit: cover; }
+/* El grupo que contiene los botones */
+.action-btn-group {
+    display: flex !important;
+    flex-direction: row !important; /* ¡ESTO LOS PONE HORIZONTALES! */
+    gap: 10px !important;           /* Espacio entre cada botón */
+    align-items: center !important;
+}
+/* Ajuste para que el texto no se monte encima */
+.item-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-grow: 1; /* Ocupa el espacio disponible */
+}
+/* Asegurar tamaño de botones */
+.icon-btn {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important; /* Para que no se aplasten */
+    margin: 0 !important; /* Quitar márgenes extraños */
+}
+.icon-btn:hover { background: #333; color: white; }
+.btn-del:hover { background: #ff5252; color: white; }
+
+/* Buscador */
+#buscadorInventario {
+    background: #000 !important;
+    border: 1px solid #333 !important;
+    color: white !important;
+}
+#buscadorInventario:focus {
+    border-color: #ff007f !important;
+}
+/* --- ARREGLO DEFINITIVO TÍTULO RESEÑAS --- */
+
+/* 1. REGLA GENERAL PARA TÍTULOS EN EL MODAL (Afecta a Reseñas) */
+.modal-card h2, 
+.modal-card h3 {
+    margin-top: 60px !important; /* ¡BÁJATE DEL TECHO! */
+    margin-left: 20px !important;
+    margin-bottom: 20px !important;
+    display: block;
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+}
+
+/* 2. EXCEPCIÓN PARA TÍTULOS DE PLATOS (Los que tienen foto) */
+/* Los títulos de platos suelen estar dentro de 'modal-body-content' o tienen la clase 'modal-title-elegant' */
+.modal-body-content h2,
+.modal-body-content h3,
+.modal-title-elegant {
+    margin-top: 0px !important; /* El plato NO debe tener margen arriba */
+    margin-left: 0px !important;
+    padding-top: 0px !important;
+}
+
+/* 3. ASEGURAR QUE EL BOTÓN CERRAR (X) ESTÉ ENCIMA */
+.btn-close-modal {
+    z-index: 9999 !important;
+}
+/* =========================================
+   AJUSTE FINAL FOOTER (MÁS SUTIL Y ESPACIADO)
+   ========================================= */
+
+/* 1. Texto de Copyright y Créditos (Menos notorio) */
+/* Apuntamos a los párrafos del final para oscurecerlos */
+footer p,
+.copyright-text, /* Posibles nombres de clase comunes */
+.credits-text {
+    color: #666 !important; /* Gris oscuro en lugar de blanco/claro */
+    font-size: 0.85rem !important; /* Un pelín más pequeño para que destaque menos */
+    margin-bottom: 5px !important; /* Menos espacio entre las líneas de texto */
+    opacity: 0.8; /* Un toque de transparencia para fundirlo con el fondo */
+}
+
+/* Opcional: Si quieres que "AGENCY SENIORS" tampoco sea tan rosa chillón, descomenta esto: */
+/*
+footer p span {
+    color: #b34d80 !important; 
+    opacity: 0.9;
+}
+*/
+
+/* 2. Enlace de Acceso Gerencial (Separado un poquito) */
+footer a[href*="login"], /* Detecta el enlace que lleva al login */
+.admin-link-footer {
+    margin-top: 25px !important; /* La separación justa que pediste */
+    display: inline-block !important; /* Asegura que el margen funcione */
+    font-size: 0.9rem !important;
+    opacity: 0.9;
+    color: var(--real-pink) !important; /* Mantiene el rosa pero un poco más sutil por la opacidad */
+}
+/* --- ESTILO DE LA BOLSITA (Para que no sea un punto) --- */
+.btn-bag-action {
+    background-color: #ff007f; /* Color Rosa */
+    color: white;
+    border: none;
+    width: 40px;     /* Ancho del círculo */
+    height: 40px;    /* Alto del círculo */
+    border-radius: 50%; /* Esto lo hace redondo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 10px rgba(255, 0, 127, 0.3);
+}
+
+.btn-bag-action:active {
+    transform: scale(0.9);
+}
+
+.btn-bag-action .material-icons {
+    font-size: 1.2rem; /* Tamaño del icono dentro del círculo */
+}
+/* --- ESTILOS CARRITO FLOTANTE --- */
+#btn-carrito-flotante {
+    display: none; /* Empieza invisible */
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ff007f; /* Color Rosa */
+    color: white;
+    padding: 12px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    z-index: 9999;
+    cursor: pointer;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.1rem;
+}
+
+.carrito-info { position: relative; display: flex; align-items: center; }
+
+#carrito-contador {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: white;
+    color: #ff007f;
+    font-weight: bold;
+    font-size: 0.75rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* =========================================
+   ARREGLO FINAL DEL MODAL (ESPACIOSO)
+   ========================================= */
+
+#modal-pedido-overlay .modal-card {
+    /* TAMAÑO Y FORMA */
+    width: 90% !important;
+    max-width: 400px !important;
+    height: auto !important;       /* Que crezca según lo que tenga adentro */
+    max-height: 90vh !important;   /* Que no se salga de la pantalla */
+    
+    background: #111 !important;   /* Fondo negro elegante */
+    padding: 25px 20px !important; /* Bastante relleno interno */
+    border-radius: 20px !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+    
+    /* ORGANIZACIÓN */
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important; /* Para ubicar la X de cerrar */
+}
+
+/* LA LISTA DE COMPRAS (Scroll solo aquí) */
+#nombre-plato-pedido {
+    max-height: 30vh !important;   /* Máximo 30% de la pantalla para la lista */
+    overflow-y: auto !important;   /* Si hay muchos platos, haz scroll */
+    margin-bottom: 20px !important;
+    border-bottom: 1px solid #333; /* Línea separadora sutil */
+    padding-bottom: 10px !important;
+}
+
+/* BOTÓN DE CERRAR (LA X) - ARREGLADO */
+.btn-close-modal {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    background: rgba(255,255,255,0.1) !important;
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+}
+
+/* BOTONES DOMICILIO / RECOGER (Lado a Lado) */
+.grid-botones-envio {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    margin-bottom: 20px !important;
+    flex-shrink: 0 !important; /* No dejarse aplastar */
+}
+/* =========================================
+   DISEÑO PREMIUM DEL CARRITO (TIPO APP)
+   ========================================= */
+
+/* 1. FONDO OSCURO Y BORROSO (Efecto moderno) */
+#modal-pedido-overlay {
+    backdrop-filter: blur(5px);         /* Difumina el fondo de atrás */
+    background-color: rgba(0, 0, 0, 0.8) !important; 
+    z-index: 99999 !important;
+}
+
+/* 2. LA TARJETA PRINCIPAL (El "Sándwich") */
+#modal-pedido-overlay .modal-card {
+    position: relative !important;
+    width: 95% !important;              /* Casi todo el ancho del móvil */
+    max-width: 450px !important;        /* Pero no gigante en PC */
+    height: auto !important;
+    max-height: 85vh !important;        /* Altura segura */
+    
+    background: #101010 !important;     /* Negro mate */
+    border: 1px solid #333 !important;  /* Borde sutil */
+    border-radius: 25px !important;     /* Bordes muy redondos */
+    padding: 25px !important;
+    
+    display: flex !important;
+    flex-direction: column !important;  /* Estructura vertical */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.9) !important;
+}
+
+/* 3. TÍTULO "TU PEDIDO" */
+#modal-pedido-overlay h2 {
+    font-family: 'Playfair Display', serif !important;
+    color: #ff007f !important;
+    text-align: center !important;
+    font-size: 1.8rem !important;
+    margin-top: 0 !important;
+    margin-bottom: 15px !important;
+    flex-shrink: 0 !important;          /* No se aplasta */
+}
+
+/* 4. LA LISTA DE PRODUCTOS (¡Aquí está la magia del Scroll!) */
+#nombre-plato-pedido {
+    flex: 1 1 auto !important;          /* Ocupa el espacio disponible */
+    overflow-y: auto !important;        /* SCROLL si la lista es larga */
+    margin-bottom: 15px !important;
+    
+    /* Estética de la caja de la lista */
+    background: rgba(255,255,255,0.03) !important;
+    border-radius: 15px !important;
+    padding: 10px !important;
+    border: 1px solid #222 !important;
+}
+
+/* Estilo de cada renglón de producto (Javascript genera esto, lo estilizamos aquí) */
+#nombre-plato-pedido > div {
+    border-bottom: 1px solid #333 !important;
+    padding: 10px 5px !important;
+    transition: background 0.2s;
+}
+#nombre-plato-pedido > div:last-child {
+    border-bottom: none !important;
+}
+
+/* 5. SECCIÓN INFERIOR (Botones y Total - SIEMPRE VISIBLES) */
+/* Contenedor del formulario (Dirección, Botones, Total) */
+#modal-pedido-overlay .modal-card > div:nth-of-type(4) { /* Ajustar índice si cambia HTML */
+    flex-shrink: 0 !important;          /* PROHIBIDO APLASTARSE */
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+/* 6. BOTÓN CERRAR (X) */
+.btn-close-modal {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    background: #222 !important;
+    color: white !important;
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 50% !important;
+    z-index: 10 !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important;
+}
+
+/* 7. TEXTO TOTAL */
+#texto-total {
+    font-size: 2rem !important;
+    text-shadow: 0 0 10px rgba(255, 0, 127, 0.4) !important;
+}
+/* =========================================
+   DISEÑO PREMIUM COMPLETO (FINAL)
+   ========================================= */
+
+/* 1. EL FONDO (OSCURO Y BORROSO) */
+#modal-pedido-overlay {
+    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.85) !important;
+    z-index: 99999 !important;
+}
+
+/* 2. LA TARJETA (TIPO IPHONE) */
+#modal-pedido-overlay .modal-card {
+    position: relative !important;
+    width: 95% !important;
+    max-width: 420px !important;
+    height: auto !important;
+    max-height: 85vh !important;
+    
+    background: #121212 !important;     /* Negro profundo */
+    border: 1px solid #333 !important;
+    border-radius: 25px !important;
+    padding: 25px !important;
+    
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.9) !important;
+}
+
+/* 3. TÍTULO */
+#modal-pedido-overlay h2 {
+    font-family: 'Playfair Display', serif !important;
+    color: #ff007f !important; /* Tu color rosa */
+    text-align: center !important;
+    font-size: 2rem !important;
+    margin: 0 0 15px 0 !important;
+    flex-shrink: 0 !important;
+}
+
+/* 4. LA LISTA DE PRODUCTOS (CON SCROLL) */
+#nombre-plato-pedido {
+    flex: 1 1 auto !important;    /* Ocupa espacio disponible */
+    overflow-y: auto !important;  /* Scroll si es muy largo */
+    margin-bottom: 20px !important;
+    
+    background: rgba(255,255,255,0.03) !important;
+    border-radius: 15px !important;
+    padding: 10px !important;
+    border: 1px solid #222 !important;
+}
+
+/* Estilo de cada item en la lista */
+#nombre-plato-pedido > div {
+    border-bottom: 1px solid #333 !important;
+    padding: 12px 5px !important;
+}
+#nombre-plato-pedido > div:last-child { border-bottom: none !important; }
+
+
+/* 5. LOS BOTONES DE DOMICILIO/RECOGER (¡AQUÍ ESTABA EL FALLO!) */
+.grid-botones-envio {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* 50% y 50% */
+    gap: 15px !important;
+    margin-bottom: 20px !important;
+    flex-shrink: 0 !important;
+}
+
+.celda-opcion {
+    display: flex !important;
+    flex-direction: column !important; /* Icono arriba, texto abajo */
+    align-items: center !important;
+    justify-content: center !important;
+    
+    background: #1e1e1e !important;   /* Fondo gris oscuro */
+    border: 1px solid #333 !important;
+    border-radius: 15px !important;   /* Bordes redondos */
+    padding: 5px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Iconos y Texto de los botones */
+.celda-opcion .material-icons { font-size: 1.8rem !important; margin-bottom: 5px !important; color: #888; }
+.celda-opcion span { font-size: 0.9rem !important; font-weight: 500 !important; color: #aaa; }
+
+/* ESTADO ACTIVO (CUANDO SE SELECCIONA) */
+.celda-opcion.active {
+    background: rgba(255, 0, 127, 0.15) !important; /* Fondo Rosa Suave */
+    border-color: #ff007f !important;               /* Borde Rosa */
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.2) !important;
+}
+.celda-opcion.active .material-icons { color: #ff007f !important; }
+.celda-opcion.active span { color: white !important; font-weight: bold !important; }
+
+
+/* 6. INPUT DE DIRECCIÓN */
+#input-direccion {
+    background: #1e1e1e !important;
+    border: 1px solid #333 !important;
+    color: white !important;
+    padding: 15px !important;
+    border-radius: 12px !important;
+    font-family: sans-serif !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+#input-direccion:focus {
+    border-color: #ff007f !important;
+    outline: none !important;
+}
+
+#modal-pedido-overlay .btn-modal-action {
+    /* 1. OBLIGATORIO: Alineación al INICIO (Izquierda) */
+    display: flex !important;
+    justify-content: flex-start !important; /* Esto lo pega al borde izquierdo */
+    
+    /* 2. EL CONTROLADOR DE MOVIMIENTO */
+    /* Cambia este número: 
+       - 10px: Muy a la izquierda.
+       - 50px: Un poco más al centro.
+       - 100px: Casi en el medio. 
+    */
+    padding-left: 20px !important; 
+    
+    /* 3. RESTO DEL DISEÑO (NO TOCAR) */
+    width: 100% !important;
+    height: 55px !important;
+    white-space: nowrap !important; /* Texto en una línea */
+    background: #4eed48 !important;
+    color: white !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    border-radius: 50px !important;
+    margin-top: 15px !important;
+    box-shadow: none !important;
+    flex-shrink: 0 !important;
+    align-items: center !important;
+}
+
+/* Espacio entre el icono y la letra */
+#modal-pedido-overlay .btn-modal-action .material-icons {
+    margin-right: -100px !important; 
+    font-size: 1.4rem !important;
+}

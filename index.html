@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>El Real | Menú Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="modal.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <header class="hero-real">
+        <img src="fondo-real.jpg" class="hero-bg-cover" alt="Ambiente El Real">
+        <div class="dark-overlay"></div>
+
+        <div class="brand-group">
+            <img src="logo-real.png" class="logo-unificado" alt="El Real Logo">
+            
+            <div class="brand-text">
+                <h1>El Real</h1> 
+                <p class="brand-subtitle">   Restaurante & Bar    </p>
+                
+                <div class="header-info">
+         Abierto todos los días
+</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="search-wrapper">
+        <div class="search-box">
+            <span class="search-icon">✦</span>
+            <input type="text" id="search-input" placeholder="Buscar platos, bebidas...">
+        </div>
+    </div>
+
+    <div class="filters-container">
+        <nav class="filters">
+            <button class="filter-btn active" onclick="irAlInicio(this)">🏛️ Inicio</button>
+            <button class="filter-btn" onclick="filtrar('entrantes', this)">🥗 Entrantes</button>
+            <button class="filter-btn" onclick="filtrar('plato especial', this)">👑 Especiales</button>
+            <button class="filter-btn" onclick="filtrar('completas', this)">🍛 Completas</button>
+            <button class="filter-btn" onclick="filtrar('pizzas', this)">🍕 Pizzas</button>
+            <button class="filter-btn" onclick="filtrar('pizzas familiares', this)">🍕 Familiares</button>      
+            <button class="filter-btn" onclick="filtrar('spaguettis', this)">🍝 Spaguettis</button>
+            <button class="filter-btn" onclick="filtrar('bebidas', this)">🍷 Bebidas</button>
+            <button class="filter-btn" onclick="filtrar('postres', this)">🍨 Postres</button>
+            <button class="filter-btn" onclick="filtrar('agregados', this)">🧀 Agregados</button>
+        </nav>
+    </div>
+
+    <main class="container">
+        <div id="menu-grid" class="menu-grid"></div>
+    </main>
+
+    <footer>
+        <div class="footer-branding">
+            <p>El Real © 2026</p>
+            <p class="agency-tag">Digital Experience by 
+                <a href="https://agenciaseniors.com" target="_blank" style="color:var(--real-pink); text-decoration:none; font-weight:800;">AGENCY SENIORS</a>
+            </p>
+        </div>
+        <a href="login.html" class="admin-button-premium">
+            <span class="material-icons"></span> Acceso Gerencial
+        </a>
+    </footer>
+
+    <div id="modal-detalle" class="modal-overlay" onclick="if(event.target == this) cerrarDetalle()">
+        <div class="modal-card">
+            <div class="btn-close-modal" onclick="cerrarDetalle()">✕</div>
+            <div class="modal-image-container">
+                <img id="det-img" src="" alt="" class="modal-img">
+            </div>
+            <div class="modal-info-container">
+                <div class="modal-header-row" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2 id="det-titulo" style="margin:0; font-size:1.5rem; font-family:'Playfair Display',serif;"></h2>
+                    <div id="det-price" class="modal-price-tag" style="color:var(--real-pink);"></div>
+                </div>
+                <p id="det-desc" class="modal-description"></p>
+                <div class="valoracion-box" onclick="abrirListaOpiniones()" style="cursor:pointer; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
+                    <div class="val-main" style="display:flex; justify-content:space-between;">
+                        <span style="color:#888;">Opiniones:</span>
+                        <span style="color:#FFD700; font-weight:bold;">★ <span id="det-puntuacion-valor">0.0</span></span>
+                    </div>
+                    <div style="text-align:right; font-size:0.75rem; color:var(--real-pink); margin-top:4px;">
+                        (Ver reseñas) <span id="det-cantidad-opiniones"></span>
+                    </div>
+                </div>
+                <button class="btn-dejar-opinion-principal" onclick="abrirOpinionDesdeDetalle()">Calificar</button>
+            </div>
+        </div>
+    </div>
+
+ <div id="modal-opinion" class="modal" onclick="if(event.target == this) cerrarModalOpiniones()">
+    <div class="modal-content-opinion-elegant">
+        <span class="close-cross-corner" onclick="cerrarModalOpiniones()">×</span>
+        
+        <h3>Calificar Experiencia</h3>
+        
+        <div class="stars-elegant" id="stars-container">
+            <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5">★</span>
+        </div>
+        
+        <div class="input-group-elegant">
+            <input type="text" id="cliente-nombre" placeholder="Tu nombre (Opcional)">
+        </div>
+        <div class="input-group-elegant">
+            <textarea id="cliente-comentario" rows="3" placeholder="¿Qué te pareció el plato? Cuéntanos..."></textarea>
+        </div>
+        
+        <button id="btn-enviar-opinion" class="btn-submit-elegant" onclick="enviarOpinion()">
+            ENVIAR CALIFICACIÓN
+        </button>
+    </div>
+</div>
+
+    <div id="modal-lista-opiniones" class="modal-overlay" style="display:none; z-index: 2100;" onclick="if(event.target == this) cerrarListaOpiniones()">
+        <div class="modal-card" style="max-height: 70vh; display: flex; flex-direction: column;">
+            <div class="btn-close-modal" onclick="cerrarListaOpiniones()">✕</div>
+            <h3 style="color:white; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:10px;">Reseñas</h3>
+            <div id="contenedor-opiniones-full" style="overflow-y: auto; flex: 1; padding-right: 5px;"></div>
+        </div>
+    </div>
+    <div id="modal-pedido-overlay" class="modal-overlay" style="z-index: 99999;">
+    <div class="modal-card">
+        
+        <div class="btn-close-modal" onclick="cerrarModalPedido()">
+            <span class="material-icons">close</span>
+        </div>
+
+        <h2 style="color: #ff007f; text-align: center; margin-bottom: 15px;">Tu Pedido</h2>
+        
+        <div id="nombre-plato-pedido"></div>
+
+        <div class="grid-botones-envio">
+            <div onclick="setMetodo('domicilio')" id="btn-domicilio" class="celda-opcion active">
+                <span class="material-icons">delivery_dining</span>
+                <span>Domicilio</span>
+            </div>
+            <div onclick="setMetodo('recoger')" id="btn-recoger" class="celda-opcion">
+                <span class="material-icons">storefront</span>
+                <span>Recoger</span>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            
+            <div id="input-cantidad" style="display:none;"></div> 
+
+            <div id="campo-direccion">
+                <label style="color: #aaa; font-size: 0.9rem;">¿A dónde te lo llevamos?</label>
+                <textarea id="input-direccion" rows="2" placeholder="Dirección exacta..." style="width: 100%; background: #1a1a1a; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; margin-top: 5px; resize: none;"></textarea>
+            </div>
+
+            <div style="text-align: center; margin-top: 5px;">
+                <span style="color: #888;">Total a Pagar:</span>
+                <div id="texto-total" style="font-size: 1.5rem; color: #ff007f; font-weight: 800;">$0</div>
+            </div>
+
+            <button onclick="enviarPedidoWhatsApp()" class="btn-modal-action">
+                <span class="material-icons">whatsapp</span> ENVIAR PEDIDO
+            </button>
+        </div>
+
+    </div>
+</div>
+   <div id="btn-carrito-flotante" onclick="abrirModalCarrito()">
+    <div class="carrito-info">
+        <span class="material-icons">shopping_cart</span>
+        <span id="carrito-contador">0</span>
+    </div>
+    <span id="carrito-total" style="font-weight: 800;">$0</span>
+</div>
+
+    <script src="script.js"></script>
+</body>
+</html>

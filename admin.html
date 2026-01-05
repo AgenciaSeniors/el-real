@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Gerencial | El Real</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+<body class="admin-body"> 
+    
+    <header class="admin-header">
+        <div style="display:flex; align-items:center;">
+            <h1 class="admin-title">El Real <span style="font-size:0.5em; opacity:0.6; font-family:'Montserrat',sans-serif; margin-left:8px;">Manager</span></h1>
+            <span class="admin-badge" style="margin-left: 15px;">ADMIN</span>
+        </div>
+        <div style="display:flex; gap:15px; align-items:center;">
+           <a href="index.html" target="_top" style="color:#888; text-decoration:none; font-size:0.8rem; cursor:pointer; padding:8px 15px; border:1px solid #333; border-radius:20px; transition:0.3s;">Ver Carta</a>
+            <button onclick="cerrarSesion()" style="background:none; border:none; color:#ff5252; cursor:pointer;" title="Salir"><span class="material-icons">logout</span></button>
+        </div>
+    </header>
+
+    <div class="dashboard-grid"> 
+        <div style="grid-column: 1 / -1; background: #111; padding: 20px; border-radius: 16px; border: 1px solid #333; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+    <div style="flex: 1;">
+        <h3 style="color: #ff007f; margin: 0 0 5px 0; font-family: 'Playfair Display', serif;">📞 Teléfono de Pedidos</h3>
+        <p style="color: #888; margin: 0; font-size: 0.85rem;">Aquí llegarán los mensajes de WhatsApp.</p>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <span style="font-size: 1.5rem;">🇨🇺</span>
+        <input type="text" id="config-telefono" placeholder="Ej: 5355555555" 
+               style="background: #000; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; width: 150px; text-align: center; font-weight: bold;">
+        <button onclick="guardarTelefono()" class="btn-big-action" style="width: auto; padding: 10px 20px; font-size: 0.9rem;">GUARDAR</button>
+    </div>
+</div>
+        <div class="upload-zone">
+            <h3>Gestión de Producto</h3>
+            
+            <form id="form-producto">
+                <input type="hidden" id="edit-id">
+
+                <div class="input-group">
+                    <label>Nombre del Plato</label>
+                    <input type="text" id="nombre" class="input-stylish" placeholder="Ej: Ropa Vieja" required>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div class="input-group">
+                        <label>Precio ($)</label>
+                        <input type="number" id="precio" class="input-stylish" placeholder="0.00" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Categoría</label>
+                        <select id="categoria" class="input-stylish" required>
+                            <option value="" disabled selected>Seleccionar...</option>
+                            <option value="entrantes">Entrantes</option>
+                            <option value="plato especial">Especiales</option>
+                            <option value="completas">Completas</option>
+                            <option value="pizzas">Pizzas</option>
+                            <option value="pizzas familiares">Pizzas Familiares</option>
+                            <option value="spaguettis">Spaguettis</option>
+                            <option value="bebidas">Bebidas</option>
+                            <option value="postres">Postres</option>
+                            <option value="agregados">Agregados</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Foto <small style="opacity:0.6; font-weight:normal;">(Tap para subir)</small></label>
+                    <label class="file-upload-wrapper" for="imagen-file">
+                        <div id="upload-prompt" style="text-align: center; padding: 30px 10px;">
+                            <span class="material-icons" style="font-size:2rem; color:#ff007f; margin-bottom:5px;">add_a_photo</span>
+                            <span class="file-upload-text" style="display: block; color:#888; font-size:0.8rem;">Seleccionar imagen</span>
+                        </div>
+                        <img id="imagen-preview" src="" alt="Vista previa" style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        <input type="file" id="imagen-file" accept="image/*" style="display: none;">
+                    </label>
+                </div>
+
+                <div class="input-group">
+                    <label>Descripción</label>
+                    <textarea id="descripcion" class="input-stylish" rows="3" placeholder="Ingredientes, detalles..."></textarea>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; background:rgba(255,255,255,0.03); padding:10px; border-radius:8px;">
+                    <input type="checkbox" id="destacado" style="width:18px; height:18px; accent-color:#ff007f;">
+                    <label for="destacado" style="margin:0; cursor:pointer; color:#ccc; font-size:0.9rem;">Marcar como "Destacado" 👑</label>
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <button type="submit" class="btn-big-action" id="btn-submit">GUARDAR</button>
+                    <button type="button" id="btn-cancelar" onclick="cancelarEdicion()" style="background:transparent; border:1px solid #444; color:#aaa; width:40%; padding:15px; border-radius:8px; cursor:pointer; display:none; font-weight:600;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div> 
+
+        <div class="inventory-zone">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin:0; border:none;">Inventario</h3>
+                <span id="contador-productos" style="font-size:0.8rem; color:#666;">Cargando...</span>
+            </div>
+
+            <div style="background: #000; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.2rem;">🔍</span>
+                <input type="text" id="buscadorInventario" placeholder="Buscar plato..." style="width: 100%; background: transparent; color: white; border: none; outline: none; font-size: 0.95rem;">
+            </div>
+            
+            <div id="lista-admin" class="inventory-list">
+                </div>
+        </div>
+
+    </div> 
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+
+<script src="admin.js"></script>
+</body>
+</html>

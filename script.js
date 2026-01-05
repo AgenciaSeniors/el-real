@@ -1,0 +1,524 @@
+// script.js - VERSIÓN EL REAL
+
+let searchTimeout;
+let todosLosProductos = [];
+let productoActual = null;
+let puntuacionSeleccionada = 0;
+
+// 1. CARGAR MENÚ
+async function cargarMenu() {
+    const grid = document.getElementById('menu-grid');
+    if (grid) grid.innerHTML = '<p style="text-align:center; color:#888; grid-column:1/-1; padding:40px;">Cargando carta...</p>';
+
+    try {
+        if (typeof supabaseClient === 'undefined') {
+            throw new Error("Error: Supabase no está conectado.");
+        }
+
+        let { data: productos, error } = await supabaseClient
+            .from('productos')
+            .select(`*, opiniones(puntuacion)`)
+            .eq('activo', true)
+            .eq('restaurant_id', CONFIG.RESTAURANT_ID) 
+            .order('categoria', { ascending: true })
+            .order('destacado', { ascending: false })
+            .order('id', { ascending: false });
+
+        if (error) throw error;
+
+        todosLosProductos = productos.map(prod => {
+            const opiniones = prod.opiniones || [];
+            const total = opiniones.length;
+            const suma = opiniones.reduce((acc, curr) => acc + curr.puntuacion, 0);
+            prod.ratingPromedio = total ? (suma / total).toFixed(1) : null;
+            return prod;
+        });
+
+    } catch (err) {
+        console.error("Error cargando:", err);
+    }
+
+    renderizarMenu(todosLosProductos);
+}
+
+// 2. RENDERIZAR
+function renderizarMenu(lista) {
+    const contenedor = document.getElementById('menu-grid');
+    if (!contenedor) return;
+    
+    contenedor.style.display = 'block'; 
+    contenedor.innerHTML = '';
+    
+    if (lista.length === 0) {
+        contenedor.innerHTML = `
+            <div style="text-align:center; grid-column:1/-1; padding:40px; color:#888;">
+                <span class="material-icons" style="font-size:3rem; display:block; margin-bottom:10px;"></span>
+                No se encontraron productos.
+            </div>`;
+        return;
+    }
+
+    const categorias = {
+        'entrantes': { nombre: 'Entrantes', icono: '🥗' },
+        'plato especial': { nombre: 'Especiales de la Casa', icono: '👑' },
+        // TEXTO ACTUALIZADO GENÉRICO PARA EL REAL
+        'completas': { 
+            nombre: 'Completas <br><span style="font-size: 0.6em; opacity: 0.7; font-weight:normal; font-family:sans-serif;">(Platos fuertes con guarnición)</span>', 
+            icono: '🍛' 
+        },
+        'pizzas': { nombre: 'Pizzas', icono: '🍕' },
+        'pizzas familiares': { nombre: 'Pizzas Familiares', icono: '🍕' },
+        'spaguettis': { nombre: 'Spaguettis', icono: '🍝' },
+        'bebidas': { nombre: 'Bebidas & Coctelería', icono: '🍷' },
+        'postres': { nombre: 'Postres', icono: '🍨' }, 
+        'agregados': { nombre: 'Agregados', icono: '🧀' },
+        'agregados pizzas familiares': { nombre: 'Agregados Familiares', icono: '🧀' },
+    };
+
+    Object.keys(categorias).forEach(catKey => {
+        const productosCategoria = lista.filter(p => p.categoria === catKey);
+        if (productosCategoria.length > 0) {
+            const catInfo = categorias[catKey];
+            const seccionHTML = `
+                <div class="category-section" id="section-${catKey}" data-categoria="${catKey}">
+                    <h2 class="category-title-real">${catInfo.icono} ${catInfo.nombre}</h2>
+                    <div class="horizontal-scroll">
+                      ${productosCategoria.map(item => {
+                        const esAgotado = item.estado === 'agotado';
+                        const claseAgotado = esAgotado ? 'is-agotado' : '';
+                        const badgeAgotado = esAgotado ? '<div class="badge-agotado-real">AGOTADO</div>' : '';
+
+                        return `
+                            <div class="card-real ${claseAgotado}" onclick="${esAgotado ? '' : `abrirDetalle(${item.id})`}">
+                                <div class="card-img-container">
+                                    ${badgeAgotado}
+                                    <img src="${item.imagen_url || 'https://via.placeholder.com/300'}" loading="lazy">
+                                    ${item.destacado ? '<span class="tag-destacado">TOP</span>' : ''}
+                                </div>
+                                <div class="card-body">
+                                    <h3>${item.nombre}</h3>
+                                    <div class="card-footer">
+                                        <span class="card-price">$${item.precio}</span>
+                                     <button class="btn-bag-action" onclick='event.stopPropagation(); agregarAlCarrito(${JSON.stringify(item)})'>
+    <span class="material-icons">shopping_bag</span>
+</button>
+    </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                    </div>
+                </div>
+            `;
+            contenedor.innerHTML += seccionHTML;
+        }
+    });
+    activarVigilanciaCategorias();
+}
+
+// ... EL RESTO DE FUNCIONES (abrirDetalle, filtrar, enviarOpinion) SE QUEDAN IGUAL ...
+// (Copia y pega el resto de tu script.js anterior aquí abajo, ya que la lógica no cambia)
+// Solo asegúrate de copiar desde "async function abrirDetalle(id)..." hasta el final.
+
+// AQUI ABAJO PEGA TUS FUNCIONES: abrirDetalle, setText, cerrarDetalle, filtrar, irAlInicio, listeners, etc.
+// Son idénticas a las de Casona.
+
+async function abrirDetalle(id) {
+    const idNum = Number(id);
+    productoActual = todosLosProductos.find(p => p.id === idNum);
+    if (!productoActual) return;
+
+    setText('det-titulo', productoActual.nombre);
+    setText('det-desc', productoActual.descripcion);
+    setText('det-price', `$${productoActual.precio}`);
+    const imgEl = document.getElementById('det-img');
+    if(imgEl) imgEl.src = productoActual.imagen_url || '';
+
+    try {
+        const { data: notas, error } = await supabaseClient
+            .from('opiniones')
+            .select('puntuacion')
+            .eq('producto_id', idNum);
+
+        if (error) throw error;
+        let promedioTotal = "0.0";
+        let cantidadTotal = 0;
+        if (notas && notas.length > 0) {
+            const suma = notas.reduce((acc, curr) => acc + curr.puntuacion, 0);
+            promedioTotal = (suma / notas.length).toFixed(1);
+            cantidadTotal = notas.length;
+        }
+        
+        const notaValor = document.getElementById('det-puntuacion-valor');
+        const cantidadTexto = document.getElementById('det-cantidad-opiniones');
+        if (notaValor) notaValor.textContent = promedioTotal;
+        if (cantidadTexto) cantidadTexto.textContent = `(${cantidadTotal} reseñas)`;
+
+    } catch (err) { console.error(err); }
+
+    const modal = document.getElementById('modal-detalle');
+    if(modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+}
+
+function setText(id, text) {
+    const el = document.getElementById(id);
+    if(el) el.textContent = text;
+}
+
+function cerrarDetalle() {
+    const modal = document.getElementById('modal-detalle');
+    if(modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 350);
+    }
+}
+
+function filtrar(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    if (cat === 'todos') {
+        renderizarMenu(todosLosProductos); 
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+    }
+    const buscador = document.getElementById('search-input');
+    if (buscador && buscador.value !== "") {
+        buscador.value = ""; 
+        renderizarMenu(todosLosProductos); 
+    }
+    const seccionDestino = document.getElementById(`section-${cat}`);
+    if (seccionDestino) {
+        const posicion = seccionDestino.offsetTop - 120; 
+        window.scrollTo({ top: posicion, behavior: 'smooth' });
+    }
+}
+
+function irAlInicio(btn) {
+    window.scrollTo({ top: 0, behavior: 'smooth'});
+    const inputBusqueda = document.getElementById('search-input');
+    if (inputBusqueda) inputBusqueda.value = "";
+    filtrar('todos', btn);
+}
+
+document.addEventListener('input', (e) => {
+    if (e.target.id === 'search-input') {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const busqueda = e.target.value.toLowerCase().trim();
+            if (busqueda === "") {
+                renderizarMenu(todosLosProductos);
+            } else {
+                const filtrados = todosLosProductos.filter(p => 
+                    p.nombre.toLowerCase().includes(busqueda) || 
+                    (p.descripcion && p.descripcion.toLowerCase().includes(busqueda))
+                );
+                renderizarMenu(filtrados);
+            }
+        }, 300); 
+    }
+});
+
+const opcionesScroll = { rootMargin: '-150px 0px -70% 0px', threshold: 0 };
+const observadorScroll = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const categoriaActiva = entry.target.getAttribute('data-categoria');
+            actualizarBotonActivo(categoriaActiva);
+        }
+    });
+}, opcionesScroll);
+
+function actualizarBotonActivo(cat) {
+    const botones = document.querySelectorAll('.filter-btn');
+    botones.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick').includes(`'${cat}'`)) {
+            btn.classList.add('active'); 
+            btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+    });
+}
+
+function activarVigilanciaCategorias() {
+    const secciones = document.querySelectorAll('.category-section');
+    secciones.forEach(sec => observadorScroll.observe(sec));
+}
+
+function abrirOpinionDesdeDetalle() {
+    cerrarDetalle(); 
+    const modalOp = document.getElementById('modal-opinion');
+    if (modalOp) {
+        modalOp.style.display = 'flex';
+        setTimeout(() => modalOp.classList.add('active'), 10);
+        resetearFormularioOpinion();
+    }
+}
+
+function cerrarModalOpiniones() {
+    const modalOp = document.getElementById('modal-opinion');
+    if (modalOp) {
+        modalOp.classList.remove('active');
+        setTimeout(() => modalOp.style.display = 'none', 350);
+    }
+}
+
+function resetearFormularioOpinion() {
+    puntuacionSeleccionada = 0; 
+    const estrellas = document.querySelectorAll('#stars-container span');
+    estrellas.forEach(s => s.style.color = '#444');
+    document.getElementById('cliente-nombre').value = '';
+    document.getElementById('cliente-comentario').value = '';
+}
+
+document.addEventListener('click', (e) => {
+    const estrella = e.target.closest('#stars-container span');
+    if (estrella) {
+        puntuacionSeleccionada = parseInt(estrella.getAttribute('data-val'));
+        const todasLasEstrellas = document.querySelectorAll('#stars-container span');
+        todasLasEstrellas.forEach((s, i) => {
+            s.style.color = (i < puntuacionSeleccionada) ? '#F50057' : '#444'; // Rosa para las estrellas
+        });
+    }
+});
+
+document.addEventListener('DOMContentLoaded', cargarMenu);
+
+async function enviarOpinion() {
+    if (!puntuacionSeleccionada || puntuacionSeleccionada === 0) {
+        alert("⚠️ Por favor, selecciona una puntuación.");
+        return;
+    }
+    const elNombre = document.getElementById('cliente-nombre'); 
+    const elComentario = document.getElementById('cliente-comentario');
+    const btn = document.getElementById('btn-enviar-opinion');
+    
+    btn.disabled = true;
+    btn.textContent = "ENVIANDO...";
+
+    try {
+        const { error } = await supabaseClient
+            .from('opiniones')
+            .insert([{
+                producto_id: productoActual.id, 
+                cliente_nombre: elNombre.value.trim() || "Anónimo", 
+                comentario: elComentario.value.trim(),      
+                puntuacion: puntuacionSeleccionada,
+                restaurant_id: CONFIG.RESTAURANT_ID
+            }]);
+
+        if (error) throw error;
+        alert("✅ ¡Gracias! Tu opinión ha sido enviada.");
+        cerrarModalOpiniones();
+    } catch (err) {
+        alert("❌ Error: " + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "ENVIAR";
+    }
+}
+
+async function abrirListaOpiniones() {
+    const contenedor = document.getElementById('contenedor-opiniones-full');
+    const modalLista = document.getElementById('modal-lista-opiniones');
+    if (!productoActual) return;
+    modalLista.style.display = 'flex';
+    setTimeout(() => modalLista.classList.add('active'), 10);
+    contenedor.innerHTML = '<p style="text-align:center; padding:20px; color:#aaa;">Cargando...</p>';
+
+    try {
+        const { data: opiniones, error } = await supabaseClient
+            .from('opiniones')
+            .select('*')
+            .eq('producto_id', productoActual.id)
+            .order('id', { ascending: false });
+
+        if (error) throw error;
+
+        if (!opiniones || opiniones.length === 0) {
+            contenedor.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">Sin reseñas aún.</p>';
+            return;
+        }
+
+        contenedor.innerHTML = opiniones.map(op => `
+            <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; margin-bottom: 12px; border-left: 3px solid var(--real-pink);">
+                <div style="display:flex; justify-content:space-between; align-items: center;">
+                    <strong style="color:white; font-size:0.9rem;">${op.cliente_nombre || 'Anónimo'}</strong>
+                    <span style="color:#FFD700; font-size:0.8rem;">${'★'.repeat(op.puntuacion)}</span>
+                </div>
+                <p style="color:#bbb; font-size:0.85rem; margin-top:8px; line-height:1.4;">
+                    "${op.comentario || 'Sin comentario.'}"
+                </p>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        contenedor.innerHTML = '<p style="color:red; text-align:center;">Error al conectar.</p>';
+    }
+}
+
+function cerrarListaOpiniones() {
+    const modalLista = document.getElementById('modal-lista-opiniones');
+    if(modalLista) {
+        modalLista.classList.remove('active');
+        setTimeout(() => modalLista.style.display = 'none', 300);
+    }
+}
+// ==========================================
+// 🛒 LÓGICA DE CARRITO (NUEVO)
+// ==========================================
+
+let carrito = [];
+// Variable global que guardará el número (empieza vacía o con uno de respaldo)
+let telefonoRestaurant = "5350000000"; 
+
+// Función para descargar la configuración al iniciar
+async function cargarConfiguracion() {
+    // Pedimos a Supabase el valor donde la clave sea 'telefono_pedidos'
+    const { data, error } = await supabaseClient
+        .from('configuracion')
+        .select('valor')
+        .eq('clave', 'telefono_pedidos')
+        .single();
+
+    if (data) {
+        telefonoRestaurant = data.valor; // ¡Actualizamos la variable con el dato real!
+        console.log("Número cargado desde base de datos:", telefonoRestaurant);
+    } else {
+        console.error("Error cargando teléfono:", error);
+    }
+}
+
+// Llamamos a esta función apenas cargue la página
+cargarConfiguracion();
+let metodoEntrega = 'domicilio'; 
+
+// 1. AGREGAR AL CARRITO
+function agregarAlCarrito(producto) {
+    const itemExistente = carrito.find(p => p.id === producto.id);
+    if (itemExistente) {
+        itemExistente.cantidad++;
+    } else {
+        carrito.push({
+            id: producto.id,
+            nombre: producto.nombre,
+            precio: producto.precio,
+            cantidad: 1
+        });
+    }
+    actualizarBotonFlotante();
+    // Pequeña vibración para confirmar
+    if (navigator.vibrate) navigator.vibrate(50);
+}
+
+// 2. ACTUALIZAR EL BOTÓN FLOTANTE
+function actualizarBotonFlotante() {
+    const btn = document.getElementById('btn-carrito-flotante');
+    const contador = document.getElementById('carrito-contador');
+    const labelTotal = document.getElementById('carrito-total');
+    
+    if (carrito.length === 0) {
+        btn.style.display = 'none';
+        return;
+    }
+    btn.style.display = 'flex';
+    
+    const totalItems = carrito.reduce((sum, i) => sum + i.cantidad, 0);
+    const totalPrecio = carrito.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
+    
+    contador.innerText = totalItems;
+    labelTotal.innerText = `$${totalPrecio}`;
+}
+
+// 3. ABRIR LA LISTA (MODAL)
+function abrirModalCarrito() {
+    if (carrito.length === 0) return;
+
+    let listaHTML = `<div style="max-height: 250px; overflow-y: auto; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom:15px;">`;
+    
+    carrito.forEach((item, index) => {
+        listaHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding:8px 0;">
+                <div style="color:white; flex:1;">
+                    <span style="color:#ff007f; font-weight:bold;">${item.cantidad}x</span> ${item.nombre}
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="color:#bbb;">$${item.precio * item.cantidad}</span>
+                    <span class="material-icons" onclick="borrarDelCarrito(${index})" style="color:#666; font-size:1.2rem; cursor:pointer;">delete</span>
+                </div>
+            </div>`;
+    });
+    listaHTML += `</div>`;
+
+    document.getElementById('nombre-plato-pedido').innerHTML = listaHTML;
+    
+    // Ocultar selector de cantidad viejo
+    const inputCant = document.getElementById('input-cantidad');
+    if(inputCant && inputCant.parentElement) inputCant.parentElement.style.display = 'none';
+
+    // Total final
+    const totalPrecio = carrito.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
+    document.getElementById('texto-total').innerText = `$${totalPrecio}`;
+
+    document.getElementById('modal-pedido-overlay').classList.add('active');
+}
+
+// 4. BORRAR ITEM
+function borrarDelCarrito(index) {
+    carrito.splice(index, 1);
+    actualizarBotonFlotante();
+    if (carrito.length === 0) cerrarModalPedido();
+    else abrirModalCarrito();
+}
+
+// 5. CERRAR
+function cerrarModalPedido() {
+    document.getElementById('modal-pedido-overlay').classList.remove('active');
+}
+
+// 6. CAMBIAR MÉTODO (DOMICILIO/RECOGER)
+function setMetodo(metodo) {
+    metodoEntrega = metodo;
+    const btnDom = document.getElementById('btn-domicilio');
+    const btnRec = document.getElementById('btn-recoger');
+    const campoDir = document.getElementById('campo-direccion');
+
+    if (metodo === 'domicilio') {
+        btnDom.classList.add('active');
+        btnRec.classList.remove('active');
+        campoDir.style.display = 'block';
+    } else {
+        btnRec.classList.add('active');
+        btnDom.classList.remove('active');
+        campoDir.style.display = 'none';
+    }
+}
+
+// 7. ENVIAR A WHATSAPP
+function enviarPedidoWhatsApp() {
+    const direccion = document.getElementById('input-direccion').value;
+    const totalPrecio = carrito.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
+    
+    let mensaje = ` Hola *El Real*, pedido nuevo:\n\n`;
+    carrito.forEach(item => {
+        mensaje += ` ${item.cantidad}x *${item.nombre}* ($${item.precio * item.cantidad})\n`;
+    });
+    mensaje += `\n *TOTAL: $${totalPrecio}*\n----------------\n`;
+
+    if (metodoEntrega === 'domicilio') {
+        if (!direccion || direccion.trim() === "") {
+            alert("⚠️ Escribe tu dirección.");
+            return;
+        }
+        mensaje += ` *A DOMICILIO*\n ${direccion}\n Quedo a espera del costo de envío.`;
+    } else {
+        mensaje += ` *RECOGER EN LOCAL*`;
+    }
+
+   const url = `https://wa.me/${telefonoRestaurant}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+    cerrarModalPedido();
+}
