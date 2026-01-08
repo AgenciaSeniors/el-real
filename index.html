@@ -39,7 +39,15 @@
             <input type="text" id="search-input" placeholder="Buscar platos, bebidas...">
         </div>
     </div>
-
+<div class="modo-bar-wrapper" style="text-align: center; margin: 10px 0 20px 0;">
+    <label class="switch-bar">
+        <input type="checkbox" id="toggle-bar" onchange="alternarModoBar()">
+        <span class="slider-bar">
+            <span class="icon-rest">🍽️ Restaurante</span>
+            <span class="icon-bar">🥂 Modo Bar</span>
+        </span>
+    </label>
+</div>
     <div class="filters-container">
         <nav class="filters">
             <button class="filter-btn active" onclick="irAlInicio(this)">🏛️ Inicio</button>
@@ -180,4 +188,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>
