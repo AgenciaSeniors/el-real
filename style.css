@@ -1475,4 +1475,45 @@ footer a[href*="login"], /* Detecta el enlace que lleva al login */
 #modal-pedido-overlay .btn-modal-action .material-icons {
     margin-right: -100px !important; 
     font-size: 1.4rem !important;
+
+}
+/* =========================================
+   ESTILOS MODO BAR (DEFINITIVO)
+   ========================================= */
+
+/* 1. EL BOTÓN INTERRUPTOR */
+.switch-bar {
+    position: relative; display: inline-block; width: 260px; height: 44px; user-select: none;
+}
+.switch-bar input { opacity: 0; width: 0; height: 0; }
+.slider-bar {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #222; transition: .4s; border-radius: 34px;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 15px;
+    border: 1px solid #444; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+}
+.slider-bar:before {
+    position: absolute; content: ""; height: 36px; width: 125px; left: 4px; bottom: 3px;
+    background-color: #FF007F; transition: .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 30px; z-index: 1;
+}
+.icon-rest, .icon-bar { z-index: 2; font-weight: 700; font-size: 0.85rem; color: #fff; width: 50%; text-align: center; }
+.switch-bar input:checked + .slider-bar:before { transform: translateX(125px); background-color: #9D00FF; box-shadow: 0 0 15px #9d00ff; }
+.switch-bar input:checked + .slider-bar { border-color: #9D00FF; }
+
+/* 2. DISEÑO MODO BAR ACTIVADO */
+body.modo-bar-activado { background-color: #050505 !important; }
+body.modo-bar-activado .hero-real::after { background: linear-gradient(to bottom, rgba(80, 0, 180, 0.6), #050505); }
+body.modo-bar-activado .card-real { border: 1px solid #9D00FF !important; box-shadow: 0 4px 15px rgba(157, 0, 255, 0.2); }
+body.modo-bar-activado .category-title-real { color: #ae00ff !important; text-shadow: 0 0 8px rgba(174, 0, 255, 0.6); }
+
+/* 3. BOTONES DE FILTRO ACTIVOS (Morado en Bar) */
+body.modo-bar-activado .filter-btn.active {
+    background-color: #9D00FF !important; border-color: #9D00FF !important;
+    box-shadow: 0 0 15px rgba(157, 0, 255, 0.6) !important; color: white !important;
+}
+
+/* 4. CONTENEDOR FLEXIBLE (Para que se muevan) */
+#menu-grid {
+    display: flex !important; flex-direction: column !important; gap: 30px;
 }
