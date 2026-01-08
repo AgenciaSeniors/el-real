@@ -102,7 +102,7 @@ function renderizarMenu(lista) {
                             <div class="card-real ${claseAgotado}" onclick="${esAgotado ? '' : `abrirDetalle(${item.id})`}">
                                 <div class="card-img-container">
                                     ${badgeAgotado}
-                                    <img src="${item.imagen_url || 'https://via.placeholder.com/300'}" loading="lazy">
+                                    <img src="${item.imagen_url || 'https://xwkmhpcombsauoozyidi.supabase.co/storage/v1/object/public/img%20real/logo.png'}" loading="lazy">
                                     ${item.destacado ? '<span class="tag-destacado">TOP</span>' : ''}
                                 </div>
                                 <div class="card-body">
@@ -585,5 +585,6 @@ function reordenarBotonesFiltro(modoBar) {
 
     botones.forEach(btn => nav.appendChild(btn));
 }
+
 
 
