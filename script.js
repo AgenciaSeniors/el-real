@@ -62,7 +62,10 @@ function renderizarMenu(lista) {
        'entrantes': { nombre: 'Entrantes', icono: '🍟' },
         'cafes': { nombre: 'Cafés', icono: '☕' },
         'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
-        'completas': { nombre: 'Completas', icono: '🍽️' },
+        'completas': { 
+            nombre: 'Completas <br><span style="font-size: 0.65em; opacity: 0.8; font-weight:normal;">(Incluyen arroz, vianda hervida y ensalada)</span>', 
+            icono: '🍽️' 
+        },
         'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
         'Cerdo': { nombre: 'Cerdo', icono: '🥩' }, // Respetando la mayúscula del HTML
         'res': { nombre: 'Res', icono: '🍖' },
@@ -582,4 +585,5 @@ function reordenarBotonesFiltro(modoBar) {
 
     botones.forEach(btn => nav.appendChild(btn));
 }
+
 
