@@ -522,3 +522,56 @@ function enviarPedidoWhatsApp() {
     window.open(url, '_blank');
     cerrarModalPedido();
 }
+// ==========================================
+// 🔄 LÓGICA MODO BAR (COMPLETA)
+// ==========================================
+
+function alternarModoBar() {
+    const check = document.getElementById('toggle-bar');
+    const esModoBar = check ? check.checked : false;
+
+    // 1. CAMBIAR COLORES (CSS)
+    if (esModoBar) {
+        document.body.classList.add('modo-bar-activado');
+    } else {
+        document.body.classList.remove('modo-bar-activado');
+    }
+
+    // 2. REORDENAR PRODUCTOS (Volvemos a renderizar)
+    if (typeof todosLosProductos !== 'undefined') {
+        renderizarMenu(todosLosProductos);
+    }
+
+    // 3. REORDENAR BOTONES DE ARRIBA
+    reordenarBotonesFiltro(esModoBar);
+}
+
+function reordenarBotonesFiltro(modoBar) {
+    const nav = document.querySelector('nav'); // O el ID de tu contenedor de botones
+    if (!nav) return;
+
+    const botones = Array.from(nav.children);
+    const vipsBar = ['cervezas', 'cocteles', 'vinos', 'tragos', 'cremas', 'picaderas', 'bebidas'];
+
+    botones.sort((a, b) => {
+        if (a.innerText.includes('Inicio')) return -1;
+        if (b.innerText.includes('Inicio')) return 1;
+
+        const onclickA = (a.getAttribute('onclick') || '').toLowerCase();
+        const onclickB = (b.getAttribute('onclick') || '').toLowerCase();
+        const esVipA = vipsBar.some(palabra => onclickA.includes(palabra));
+        const esVipB = vipsBar.some(palabra => onclickB.includes(palabra));
+
+        if (modoBar) {
+            if (esVipA && !esVipB) return -1;
+            if (!esVipA && esVipB) return 1;
+            return 0;
+        } else {
+            if (esVipA && !esVipB) return 1;
+            if (!esVipA && esVipB) return -1;
+            return 0;
+        }
+    });
+
+    botones.forEach(btn => nav.appendChild(btn));
+}
