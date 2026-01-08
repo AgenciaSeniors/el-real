@@ -59,20 +59,27 @@ function renderizarMenu(lista) {
     }
 
     const categorias = {
-        'entrantes': { nombre: 'Entrantes', icono: '🥗' },
-        'plato especial': { nombre: 'Especiales de la Casa', icono: '👑' },
-        // TEXTO ACTUALIZADO GENÉRICO PARA EL REAL
-        'completas': { 
-            nombre: 'Completas <br><span style="font-size: 0.6em; opacity: 0.7; font-weight:normal; font-family:sans-serif;">(Platos fuertes con guarnición)</span>', 
-            icono: '🍛' 
-        },
+       'entrantes': { nombre: 'Entrantes', icono: '🍟' },
+        'cafes': { nombre: 'Cafés', icono: '☕' },
+        'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
+        'completas': { nombre: 'Completas', icono: '🍽️' },
+        'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
+        'Cerdo': { nombre: 'Cerdo', icono: '🥩' }, // Respetando la mayúscula del HTML
+        'res': { nombre: 'Res', icono: '🍖' },
+        'pollo': { nombre: 'Pollo', icono: '🍗' },
+        'pescados': { nombre: 'Pescados', icono: '🐟' },
         'pizzas': { nombre: 'Pizzas', icono: '🍕' },
-        'pizzas familiares': { nombre: 'Pizzas Familiares', icono: '🍕' },
+        'lasaña': { nombre: 'Lasaña', icono: '🥘' },
         'spaguettis': { nombre: 'Spaguettis', icono: '🍝' },
-        'bebidas': { nombre: 'Bebidas & Coctelería', icono: '🍷' },
-        'postres': { nombre: 'Postres', icono: '🍨' }, 
-        'agregados': { nombre: 'Agregados', icono: '🧀' },
-        'agregados pizzas familiares': { nombre: 'Agregados Familiares', icono: '🧀' },
+        'bebidas': { nombre: 'Bebidas S/A', icono: '🥤' },
+        'cervezas': { nombre: 'Cervezas', icono: '🍺' },
+        'cocteles': { nombre: 'Cocteles', icono: '🍹' },
+        'vinos': { nombre: 'Vinos', icono: '🍷' },
+        'tragos': { nombre: 'Tragos', icono: '🥃' },
+        'cremas': { nombre: 'Cremas', icono: '🍸' },
+        'postres': { nombre: 'Postres', icono: '🍨' },
+        'picaderas': { nombre: 'Picaderas', icono: '🍢' },
+        'agregados': { nombre: 'Agregados', icono: '🧀' }
     };
 
     Object.keys(categorias).forEach(catKey => {
@@ -575,3 +582,4 @@ function reordenarBotonesFiltro(modoBar) {
 
     botones.forEach(btn => nav.appendChild(btn));
 }
+
