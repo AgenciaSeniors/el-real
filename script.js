@@ -42,48 +42,57 @@ async function cargarMenu() {
 }
 
 // 2. RENDERIZAR
-function renderizarMenu(lista) {
-    const contenedor = document.getElementById('menu-grid');
-    if (!contenedor) return;
-    
-    contenedor.style.display = 'block'; 
-    contenedor.innerHTML = '';
-    
-    if (lista.length === 0) {
-        contenedor.innerHTML = `
-            <div style="text-align:center; grid-column:1/-1; padding:40px; color:#888;">
-                <span class="material-icons" style="font-size:3rem; display:block; margin-bottom:10px;"></span>
-                No se encontraron productos.
-            </div>`;
-        return;
+   function renderizarMenu(productos) {
+    const container = document.getElementById('menu-grid');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // 1. Agrupar productos por categoría
+    const categorias = {};
+    productos.forEach(item => {
+        if (!categorias[item.categoria]) {
+            categorias[item.categoria] = [];
+        }
+        categorias[item.categoria].push(item);
+    });
+
+    // 2. OBTENER EL ORDEN SEGÚN EL MODO BAR
+    let llavesOrdenadas = Object.keys(categorias);
+    const checkBar = document.getElementById('toggle-bar');
+    const esModoBar = checkBar ? checkBar.checked : false;
+
+    if (esModoBar) {
+        // Prioridad para el Bar
+        const vips = ['cervezas', 'cocteles', 'vinos', 'tragos', 'cremas', 'picaderas', 'bebidas'];
+        llavesOrdenadas.sort((a, b) => {
+            const indexA = vips.indexOf(a);
+            const indexB = vips.indexOf(b);
+            
+            // Si ambos son VIP, respetar el orden de la lista 'vips'
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            // Si solo A es VIP, va primero
+            if (indexA !== -1) return -1;
+            // Si solo B es VIP, va primero
+            if (indexB !== -1) return 1;
+            return 0;
+        });
+    } else {
+        // Orden normal (puedes dejarlo por defecto o poner 'entrantes' primero)
+        const ordenRestaurante = ['entrantes', 'sugerencias del chef', 'completas', 'cerdo', 'res', 'pollo'];
+        llavesOrdenadas.sort((a, b) => {
+            const indexA = ordenRestaurante.indexOf(a);
+            const indexB = ordenRestaurante.indexOf(b);
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return 0;
+        });
     }
 
-    const categorias = {
-       'entrantes': { nombre: 'Entrantes', icono: '🍟' },
-        'cafes': { nombre: 'Cafés', icono: '☕' },
-        'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
-        'completas': { 
-            nombre: 'Completas <br><span style="font-size: 0.65em; opacity: 0.8; font-weight:normal;">(Incluyen arroz, vianda hervida y ensalada)</span>', 
-            icono: '🍽️' 
-        },
-        'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
-        'Cerdo': { nombre: 'Cerdo', icono: '🥩' }, // Respetando la mayúscula del HTML
-        'res': { nombre: 'Res', icono: '🍖' },
-        'pollo': { nombre: 'Pollo', icono: '🍗' },
-        'pescados': { nombre: 'Pescados', icono: '🐟' },
-        'pizzas': { nombre: 'Pizzas', icono: '🍕' },
-        'lasaña': { nombre: 'Lasaña', icono: '🥘' },
-        'spaguettis': { nombre: 'Spaguettis', icono: '🍝' },
-        'bebidas': { nombre: 'Bebidas S/A', icono: '🥤' },
-        'cervezas': { nombre: 'Cervezas', icono: '🍺' },
-        'cocteles': { nombre: 'Cocteles', icono: '🍹' },
-        'vinos': { nombre: 'Vinos', icono: '🍷' },
-        'tragos': { nombre: 'Tragos', icono: '🥃' },
-        'cremas': { nombre: 'Cremas', icono: '🍸' },
-        'postres': { nombre: 'Postres', icono: '🍨' },
-        'picaderas': { nombre: 'Picaderas', icono: '🍢' },
-        'agregados': { nombre: 'Agregados', icono: '🧀' }
-    };
+    // 3. Renderizar en el nuevo orden
+    llavesOrdenadas.forEach(catKey => {
+        const productosCategoria = categorias[catKey];
+        // ... aquí sigue tu código normal de generar el HTML (seccionHTML, etc.)
 
     Object.keys(categorias).forEach(catKey => {
         const productosCategoria = lista.filter(p => p.categoria === catKey);
@@ -585,6 +594,7 @@ function reordenarBotonesFiltro(modoBar) {
 
     botones.forEach(btn => nav.appendChild(btn));
 }
+
 
 
 
