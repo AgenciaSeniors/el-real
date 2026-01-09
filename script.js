@@ -42,112 +42,87 @@ async function cargarMenu() {
 }
 
 // 2. RENDERIZAR
-function renderizarMenu(productos) {
+function renderizarMenu(lista) {
     const contenedor = document.getElementById('menu-grid');
     if (!contenedor) return;
-    
-    contenedor.style.display = 'block'; 
-    contenedor.innerHTML = ''; // Limpiamos el menú
 
-    // 1. Definición de Iconos y Nombres para las Categorías
-    const categoriasDefinidas = {
-        'entrantes': { nombre: 'Entrantes', icono: '🍢' },
-        'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👨‍🍳' },
-        'completas': { nombre: 'Completas', icono: '🍽️' },
-        'cerdo': { nombre: 'Cerdo', icono: '🍖' },
-        'res': { nombre: 'Res', icono: '🥩' },
-        'pollo': { nombre: 'Pollo', icono: '🍗' },
-        'pescados': { nombre: 'Pescados y Mariscos', icono: '🐟' },
-        'pizzas': { nombre: 'Pizzas', icono: '🍕' },
-        'spaguettis': { nombre: 'Spaguettis', icono: '🍝' },
-        'lasaña': { nombre: 'Lasaña', icono: '🥘' },
-        'guarniciones': { nombre: 'Guarniciones', icono: '🍚' },
-        'postres': { nombre: 'Postres', icono: '🍰' },
-        'cafes': { nombre: 'Cafés', icono: '☕' },
-        'cervezas': { nombre: 'Cervezas', icono: '🍺' },
-        'cocteles': { nombre: 'Cocteles', icono: '🍸' },
-        'vinos': { nombre: 'Vinos', icono: '🍷' },
-        'tragos': { nombre: 'Tragos', icono: '🥃' },
-        'cremas': { nombre: 'Cremas', icono: '🍶' },
-        'picaderas': { nombre: 'Picaderas', icono: '🥨' },
-        'bebidas': { nombre: 'Bebidas', icono: '🥤' }
-    };
+    contenedor.style.display = 'block';
+    contenedor.innerHTML = '';
 
-    // 2. Agrupar productos por categoría
-    const categoriasAgrupadas = {};
-    productos.forEach(item => {
-        const cat = item.categoria.toLowerCase();
-        if (!categoriasAgrupadas[cat]) {
-            categoriasAgrupadas[cat] = [];
-        }
-        categoriasAgrupadas[cat].push(item);
-    });
-
-    // 3. Determinar el orden de las categorías según el Modo
-    let llavesOrdenadas = Object.keys(categoriasAgrupadas);
-    const esModoBar = document.getElementById('toggle-bar')?.checked;
-
-    if (esModoBar) {
-        // Orden de prioridad para el BAR
-        const ordenBar = ['cervezas', 'cocteles', 'vinos', 'tragos', 'cremas', 'picaderas', 'bebidas'];
-        llavesOrdenadas.sort((a, b) => {
-            const indexA = ordenBar.indexOf(a);
-            const indexB = ordenBar.indexOf(b);
-            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-            if (indexA !== -1) return -1;
-            if (indexB !== -1) return 1;
-            return 0;
-        });
-    } else {
-        // Orden de prioridad para el RESTAURANTE
-        const ordenRest = ['entrantes', 'sugerencias del chef', 'completas', 'cerdo', 'res', 'pollo', 'pescados', 'pizzas', 'spaguettis', 'lasaña', 'guarniciones', 'postres', 'cafes'];
-        llavesOrdenadas.sort((a, b) => {
-            const indexA = ordenRest.indexOf(a);
-            const indexB = ordenRest.indexOf(b);
-            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-            if (indexA !== -1) return -1;
-            if (indexB !== -1) return 1;
-            return 0;
-        });
+    if (lista.length === 0) {
+        contenedor.innerHTML = `
+            <div style="text-align:center; grid-column:1/-1; padding:40px; color:#888;">
+                <span class="material-icons" style="font-size:3rem; display:block; margin-bottom:10px;"></span>
+                No se encontraron productos.
+            </div>`;
+        return;
     }
 
-    // 4. Renderizar cada sección en el orden establecido
-    llavesOrdenadas.forEach(catKey => {
-        const productosCategoria = categoriasAgrupadas[catKey];
-        const infoCat = categoriasDefinidas[catKey] || { nombre: catKey, icono: '🍽️' };
-        
-        // Enlace de tu logo en Supabase para cuando no haya foto
-        const LOGO_DEFECTO = 'TU_ENLACE_DE_SUPABASE_AQUI'; 
+    // Dentro de la función renderizarMenu(lista)...
 
-        const seccionHTML = `
-            <section class="menu-section" id="cat-${catKey}">
-                <h2 class="category-title">${infoCat.icono} ${infoCat.nombre}</h2>
-                <div class="products-grid">
-                    ${productosCategoria.map(item => `
-                        <div class="card-real">
-                            <div class="card-img-container">
-                                <img src="${item.imagen_url || LOGO_DEFECTO}" 
-                                     alt="${item.nombre}" 
-                                     onerror="this.src='${LOGO_DEFECTO}'"
-                                     loading="lazy">
-                            </div>
-                            <div class="card-body">
-                                <h3 class="item-name">${item.nombre}</h3>
-                                <p class="item-description">${item.descripcion || ''}</p>
-                                <div class="card-footer">
-                                    <span class="item-price">$${item.precio}</span>
-                                    <button class="btn-order" onclick="agregarAlCarrito(${item.id})">
-                                        Agregar
-                                    </button>
+    const categorias = {
+        'entrantes': { nombre: 'Entrantes', icono: '🍟' },
+        'cafes': { nombre: 'Cafés', icono: '☕' },
+        'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
+        'completas': { nombre: 'Completas', icono: '🍽️' },
+        'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
+        'Cerdo': { nombre: 'Cerdo', icono: '🥩' }, // Respetando la mayúscula del HTML
+        'res': { nombre: 'Res', icono: '🍖' },
+        'pollo': { nombre: 'Pollo', icono: '🍗' },
+        'pescados': { nombre: 'Pescados', icono: '🐟' },
+        'pizzas': { nombre: 'Pizzas', icono: '🍕' },
+        'lasaña': { nombre: 'Lasaña', icono: '🥘' },
+        'spaguettis': { nombre: 'Spaguettis', icono: '🍝' },
+        'bebidas': { nombre: 'Bebidas S/A', icono: '🥤' },
+        'cervezas': { nombre: 'Cervezas', icono: '🍺' },
+        'cocteles': { nombre: 'Cocteles', icono: '🍹' },
+        'vinos': { nombre: 'Vinos', icono: '🍷' },
+        'tragos': { nombre: 'Tragos', icono: '🥃' },
+        'cremas': { nombre: 'Cremas', icono: '🍸' },
+        'postres': { nombre: 'Postres', icono: '🍨' },
+        'picaderas': { nombre: 'Picaderas', icono: '🍢' },
+        'agregados': { nombre: 'Agregados', icono: '🧀' }
+    };
+    Object.keys(categorias).forEach(catKey => {
+                const productosCategoria = lista.filter(p => p.categoria === catKey);
+                if (productosCategoria.length > 0) {
+                    const catInfo = categorias[catKey];
+                    const seccionHTML = `
+                <div class="category-section" id="section-${catKey}" data-categoria="${catKey}">
+                    <h2 class="category-title-real">${catInfo.icono} ${catInfo.nombre}</h2>
+                    <div class="horizontal-scroll">
+                      ${productosCategoria.map(item => {
+                        const esAgotado = item.estado === 'agotado';
+                        const claseAgotado = esAgotado ? 'is-agotado' : '';
+                        const badgeAgotado = esAgotado ? '<div class="badge-agotado-real">AGOTADO</div>' : '';
+
+                        return `
+                            <div class="card-real ${claseAgotado}" onclick="${esAgotado ? '' : `abrirDetalle(${item.id})`}">
+                                <div class="card-img-container">
+                                    ${badgeAgotado}
+                                    <img src="${item.imagen_url || 'https://xwkmhpcombsauoozyidi.supabase.co/storage/v1/object/public/img%20real/logo.png'}" loading="lazy">
+                                    ${item.destacado ? '<span class="tag-destacado">TOP</span>' : ''}
+                                </div>
+                                <div class="card-body">
+                                    <h3>${item.nombre}</h3>
+                                    <div class="card-footer">
+                                        <span class="card-price">$${item.precio}</span>
+                                     <button class="btn-bag-action" onclick='event.stopPropagation(); agregarAlCarrito(${JSON.stringify(item)})'>
+    <span class="material-icons">shopping_bag</span>
+</button>
+    </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
+                    </div>
                 </div>
-            </section>
-        `;
-        contenedor.innerHTML += seccionHTML;
+            `;
+            contenedor.innerHTML += seccionHTML;
+        }
     });
+    activarVigilanciaCategorias();
 }
 
 // ... EL RESTO DE FUNCIONES (abrirDetalle, filtrar, enviarOpinion) SE QUEDAN IGUAL ...
@@ -608,6 +583,7 @@ function reordenarBotonesFiltro(modoBar) {
 
     botones.forEach(btn => nav.appendChild(btn));
 }
+
 
 
 
