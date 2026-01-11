@@ -560,13 +560,40 @@ function alternarModoBar() {
         document.body.classList.remove('modo-bar-activado');
     }
 
-    // 2. REORDENAR PRODUCTOS (Volvemos a renderizar)
+    // 2. REORDENAR LOS PRODUCTOS (Esto es lo que te faltaba)
     if (typeof todosLosProductos !== 'undefined') {
-        renderizarMenu(todosLosProductos);
+        
+        // Lista de categorías que consideramos "Del Bar"
+        const catBar = ['cervezas', 'cocteles', 'vinos', 'tragos', 'cremas', 'bebidas', 'picaderas'];
+
+        // Hacemos una copia para no dañar el original
+        let productosOrdenados = [...todosLosProductos];
+
+        productosOrdenados.sort((a, b) => {
+            const aEsBar = catBar.includes(a.categoria);
+            const bEsBar = catBar.includes(b.categoria);
+
+            if (esModoBar) {
+                // MODO FIESTA: Bebidas primero (-1 sube, 1 baja)
+                if (aEsBar && !bEsBar) return -1;
+                if (!aEsBar && bEsBar) return 1;
+            } else {
+                // MODO RESTAURANTE: Comida primero (Bebidas al final)
+                if (aEsBar && !bEsBar) return 1;
+                if (!aEsBar && bEsBar) return -1;
+            }
+            return 0; // Si ambos son del mismo tipo, mantiene el orden original
+        });
+
+        // Renderizamos la lista YA ordenada
+        renderizarMenu(productosOrdenados);
     }
 
-    // 3. REORDENAR BOTONES DE ARRIBA
-    reordenarBotonesFiltro(esModoBar);
+    // 3. REORDENAR LOS BOTONES DE FILTRO (Arriba)
+    // (Asegúrate de tener esta función definida más abajo en tu script, como me mostraste antes)
+    if (typeof reordenarBotonesFiltro === 'function') {
+        reordenarBotonesFiltro(esModoBar);
+    }
 }
 
 function reordenarBotonesFiltro(modoBar) {
@@ -620,6 +647,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
