@@ -599,11 +599,7 @@ function alternarModoBar() {
     }
 }
 
-    // 3. REORDENAR LOS BOTONES DE FILTRO (Arriba)
-    // (Asegúrate de tener esta función definida más abajo en tu script, como me mostraste antes)
-    if (typeof reordenarBotonesFiltro === 'function') {
-        reordenarBotonesFiltro(esModoBar);
-    }
+ 
 
 
 function reordenarBotonesFiltro(modoBar) {
@@ -674,6 +670,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
