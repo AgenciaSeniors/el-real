@@ -604,7 +604,7 @@ function alternarModoBar() {
     if (typeof reordenarBotonesFiltro === 'function') {
         reordenarBotonesFiltro(esModoBar);
     }
-}
+
 
 function reordenarBotonesFiltro(modoBar) {
     const nav = document.querySelector('nav'); // O el ID de tu contenedor de botones
@@ -657,6 +657,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
