@@ -445,6 +445,7 @@ function actualizarBotonFlotante() {
 function abrirModalCarrito() {
     if (carrito.length === 0) return;
 
+    // Generar la lista de productos
     let listaHTML = `<div style="max-height: 250px; overflow-y: auto; background: #1a1a1a; padding: 10px; border-radius: 10px; margin-bottom:15px;">`;
     
     carrito.forEach((item, index) => {
@@ -455,6 +456,7 @@ function abrirModalCarrito() {
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span style="color:#bbb;">$${item.precio * item.cantidad}</span>
+                    
                     <span class="material-icons" onclick="borrarDelCarrito(${index})" style="color:#666; font-size:1.2rem; cursor:pointer;">delete</span>
                 </div>
             </div>`;
@@ -463,23 +465,36 @@ function abrirModalCarrito() {
 
     document.getElementById('nombre-plato-pedido').innerHTML = listaHTML;
     
-    // Ocultar selector de cantidad viejo
+    // Ocultar selector de cantidad viejo si existe
     const inputCant = document.getElementById('input-cantidad');
     if(inputCant && inputCant.parentElement) inputCant.parentElement.style.display = 'none';
 
-    // Total final
-    const totalPrecio = carrito.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
-    document.getElementById('texto-total').innerText = `$${totalPrecio}`;
+    // Llamamos a la función que calcula el total con envío
+    actualizarTextoTotalModal();
 
     document.getElementById('modal-pedido-overlay').classList.add('active');
 }
 
 // 4. BORRAR ITEM
 function borrarDelCarrito(index) {
-    carrito.splice(index, 1);
-    actualizarBotonFlotante();
-    if (carrito.length === 0) cerrarModalPedido();
-    else abrirModalCarrito();
+    // Si hay más de 1 unidad, solo restamos una
+    if (carrito[index].cantidad > 1) {
+        carrito[index].cantidad--; 
+    } else {
+        // Si solo queda 1, entonces sí lo borramos del array
+        carrito.splice(index, 1); 
+    }
+
+   
+    actualizarBotonFlotante(); // Actualizamos el globito rojo
+
+    // Si el carrito se quedó vacío, cerramos el modal
+    if (carrito.length === 0) {
+        cerrarModalPedido();
+    } else {
+        // Si quedan cosas, recargamos la lista visualmente para ver el cambio
+        abrirModalCarrito(); 
+    }
 }
 
 // 5. CERRAR
@@ -583,6 +598,29 @@ function reordenarBotonesFiltro(modoBar) {
 
     botones.forEach(btn => nav.appendChild(btn));
 }
+// FUNCIÓN AUXILIAR: CALCULAR Y MOSTRAR TOTAL CON DOMICILIO
+function actualizarTextoTotalModal() {
+    // 1. Sumar los productos
+    let total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    
+    // 2. Definir el texto extra
+    let textoInfo = '';
+
+    // 3. Si está en modo domicilio, sumamos 200
+    if (metodoEntrega === 'domicilio') {
+        total += 200;
+        textoInfo = `<span style="font-size: 0.8rem; color: #ff007f; display:block; margin-top:4px;">(Incluye $200 de envío)</span>`;
+    } else {
+        textoInfo = `<span style="font-size: 0.8rem; color: #888; display:block; margin-top:4px;">(Recogida en local)</span>`;
+    }
+
+    // 4. Escribir en el HTML
+    const labelTotal = document.getElementById('texto-total');
+    if (labelTotal) {
+        labelTotal.innerHTML = `$${total} ${textoInfo}`;
+    }
+}
+
 
 
 
