@@ -64,7 +64,10 @@ function renderizarMenu(lista) {
         'entrantes': { nombre: 'Entrantes', icono: '🍟' },
         'cafes': { nombre: 'Cafés', icono: '☕' },
         'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
-        'completas': { nombre: 'Completas', icono: '🍽️' },
+        'completas': { 
+    nombre: 'Completas <span style="font-size: 0.6rem; color: #aaa; font-weight: normal; vertical-align: middle; margin-left: 5px;">(Incluyen arroz, vianda hervida y ensalada)</span>', 
+    icono: '🍽️' 
+},
         'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
         'Cerdo': { nombre: 'Cerdo', icono: '🥩' }, // Respetando la mayúscula del HTML
         'res': { nombre: 'Res', icono: '🍖' },
@@ -72,7 +75,7 @@ function renderizarMenu(lista) {
         'pescados': { nombre: 'Pescados', icono: '🐟' },
         'pizzas': { nombre: 'Pizzas', icono: '🍕' },
         'lasaña': { nombre: 'Lasaña', icono: '🥘' },
-        'spaghettis': { nombre: 'Spaghettis', icono: '🍝' },
+        'spaguettis': { nombre: 'Spaguettis', icono: '🍝' },
         'bebidas': { nombre: 'Bebidas S/A', icono: '🥤' },
         'cervezas': { nombre: 'Cervezas', icono: '🍺' },
         'cocteles': { nombre: 'Cocteles', icono: '🍹' },
@@ -654,6 +657,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
