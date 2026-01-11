@@ -607,32 +607,49 @@ function alternarModoBar() {
 
 
 function reordenarBotonesFiltro(modoBar) {
-    const nav = document.querySelector('nav'); // O el ID de tu contenedor de botones
+    // Buscamos el contenedor de los botones (el <nav>)
+    // Asumimos que es el único <nav> o buscamos por clase si tienes
+    const nav = document.querySelector('nav'); 
     if (!nav) return;
 
+    // Convertimos la lista de hijos (botones) en un Array real para poder ordenarlo
     const botones = Array.from(nav.children);
-    const vipsBar = ['cervezas', 'cocteles', 'vinos', 'tragos', 'cremas', 'picaderas', 'bebidas'];
+
+    // Lista de palabras clave que definen qué es "Del Bar"
+    const vipsBar = [
+        'cervezas', 'cocteles', 'vinos', 'tragos', 
+        'cremas', 'picaderas', 'bebidas'
+    ];
 
     botones.sort((a, b) => {
+        // EXCEPCIÓN: El botón "Inicio" SIEMPRE va primero
         if (a.innerText.includes('Inicio')) return -1;
         if (b.innerText.includes('Inicio')) return 1;
 
+        // Obtenemos el texto del onclick para saber qué categoría es
+        // ej: "filtrar('cervezas', this)"
         const onclickA = (a.getAttribute('onclick') || '').toLowerCase();
         const onclickB = (b.getAttribute('onclick') || '').toLowerCase();
+
+        // Verificamos si son VIP
         const esVipA = vipsBar.some(palabra => onclickA.includes(palabra));
         const esVipB = vipsBar.some(palabra => onclickB.includes(palabra));
 
         if (modoBar) {
-            if (esVipA && !esVipB) return -1;
-            if (!esVipA && esVipB) return 1;
+            // --- MODO FIESTA: Bebidas primero ---
+            if (esVipA && !esVipB) return -1; // A sube
+            if (!esVipA && esVipB) return 1;  // B sube
             return 0;
         } else {
-            if (esVipA && !esVipB) return 1;
-            if (!esVipA && esVipB) return -1;
+            // --- MODO RESTAURANTE: Bebidas al final ---
+            // Invertimos la lógica para mandar las bebidas al fondo
+            if (esVipA && !esVipB) return 1;  // A baja
+            if (!esVipA && esVipB) return -1; // B baja
             return 0;
         }
     });
 
+    // Aplicamos el nuevo orden al HTML
     botones.forEach(btn => nav.appendChild(btn));
 }
 // FUNCIÓN AUXILIAR: CALCULAR Y MOSTRAR TOTAL CON DOMICILIO
@@ -657,6 +674,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
