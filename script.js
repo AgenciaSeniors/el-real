@@ -72,7 +72,7 @@ function renderizarMenu(lista) {
         'pescados': { nombre: 'Pescados', icono: '🐟' },
         'pizzas': { nombre: 'Pizzas', icono: '🍕' },
         'lasaña': { nombre: 'Lasaña', icono: '🥘' },
-        'spaguettis': { nombre: 'Spaguettis', icono: '🍝' },
+        'spaghettis': { nombre: 'Spaghettis', icono: '🍝' },
         'bebidas': { nombre: 'Bebidas S/A', icono: '🥤' },
         'cervezas': { nombre: 'Cervezas', icono: '🍺' },
         'cocteles': { nombre: 'Cocteles', icono: '🍹' },
@@ -583,6 +583,7 @@ function reordenarBotonesFiltro(modoBar) {
 
     botones.forEach(btn => nav.appendChild(btn));
 }
+
 
 
 
