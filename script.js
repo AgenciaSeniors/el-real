@@ -69,13 +69,13 @@ function renderizarMenu(lista) {
     icono: '🍽️' 
 },
         'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
-        'Cerdo': { nombre: 'Cerdo', icono: '🥩' }, // Respetando la mayúscula del HTML
+        'cerdo': { nombre: 'Cerdo', icono: '🥩' }, // Respetando la mayúscula del HTML
         'res': { nombre: 'Res', icono: '🍖' },
         'pollo': { nombre: 'Pollo', icono: '🍗' },
         'pescados': { nombre: 'Pescados', icono: '🐟' },
         'pizzas': { nombre: 'Pizzas', icono: '🍕' },
         'lasaña': { nombre: 'Lasaña', icono: '🥘' },
-        'spaguettis': { nombre: 'Spaghettis', icono: '🍝' },
+        'spaghettis': { nombre: 'Spaghettis', icono: '🍝' },
         'bebidas': { nombre: 'Bebidas S/A', icono: '🥤' },
         'cervezas': { nombre: 'Cervezas', icono: '🍺' },
         'cocteles': { nombre: 'Cocteles', icono: '🍹' },
@@ -670,6 +670,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
