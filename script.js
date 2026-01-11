@@ -19,7 +19,7 @@ async function cargarMenu() {
             .from('productos')
             .select(`*, opiniones(puntuacion)`)
             .eq('activo', true)
-            .eq('restaurant_id', CONFIG.RESTAURANT_ID) 
+            .eq('restaurant_id', CONFIG.RESTAURANT_ID)
             .order('categoria', { ascending: true })
             .order('destacado', { ascending: false })
             .order('id', { ascending: false });
@@ -64,10 +64,7 @@ function renderizarMenu(lista) {
         'entrantes': { nombre: 'Entrantes', icono: '🍟' },
         'cafes': { nombre: 'Cafés', icono: '☕' },
         'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
-        'completas': { 
-    nombre: 'Completas <span style="font-size: 0.6rem; color: #aaa; font-weight: normal; vertical-align: middle; margin-left: 5px;">(Incluyen arroz, vianda hervida y ensalada)</span>', 
-    icono: '🍽️' 
-},
+        'completas': { nombre: 'Completas', icono: '🍽️' },
         'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
         'cerdo': { nombre: 'Cerdo', icono: '🥩' }, // Respetando la mayúscula del HTML
         'res': { nombre: 'Res', icono: '🍖' },
@@ -444,7 +441,6 @@ function actualizarBotonFlotante() {
     labelTotal.innerText = `$${totalPrecio}`;
 }
 
-// 3. ABRIR LA LISTA (MODAL)
 function abrirModalCarrito() {
     if (carrito.length === 0) return;
 
@@ -478,7 +474,6 @@ function abrirModalCarrito() {
     document.getElementById('modal-pedido-overlay').classList.add('active');
 }
 
-// 4. BORRAR ITEM
 function borrarDelCarrito(index) {
     // Si hay más de 1 unidad, solo restamos una
     if (carrito[index].cantidad > 1) {
@@ -499,15 +494,16 @@ function borrarDelCarrito(index) {
         abrirModalCarrito(); 
     }
 }
-
 // 5. CERRAR
 function cerrarModalPedido() {
     document.getElementById('modal-pedido-overlay').classList.remove('active');
 }
 
 // 6. CAMBIAR MÉTODO (DOMICILIO/RECOGER)
+// 6. CAMBIAR MÉTODO (DOMICILIO/RECOGER)
 function setMetodo(metodo) {
-    metodoEntrega = metodo;
+    metodoEntrega = metodo; // Actualiza la variable global
+    
     const btnDom = document.getElementById('btn-domicilio');
     const btnRec = document.getElementById('btn-recoger');
     const campoDir = document.getElementById('campo-direccion');
@@ -521,6 +517,9 @@ function setMetodo(metodo) {
         btnDom.classList.remove('active');
         campoDir.style.display = 'none';
     }
+
+    // NUEVO: ¡Recalcular el precio total inmediatamente!
+    actualizarTextoTotalModal();
 }
 
 // 7. ENVIAR A WHATSAPP
@@ -549,11 +548,12 @@ function enviarPedidoWhatsApp() {
     cerrarModalPedido();
 }
 // ==========================================
-// 🔄 LÓGICA MODO BAR (COMPLETA)
+// 🔄 LÓGICA MODO BAR (COMPLETA: SECCIONES + BOTONES)
 // ==========================================
 
 function alternarModoBar() {
     const check = document.getElementById('toggle-bar');
+    // Si por alguna razón no encuentra el botón, asumimos false
     const esModoBar = check ? check.checked : false;
 
     // 1. CAMBIAR COLORES (CSS)
@@ -563,44 +563,14 @@ function alternarModoBar() {
         document.body.classList.remove('modo-bar-activado');
     }
 
-    // 2. REORDENAR LOS PRODUCTOS (Esto es lo que te faltaba)
+    // 2. REORDENAR LAS SECCIONES DE PRODUCTOS (Abajo)
     if (typeof todosLosProductos !== 'undefined') {
-        
-        // Lista de categorías que consideramos "Del Bar"
-        const catBar = ['cervezas', 'cocteles', 'vinos', 'tragos', 'cremas', 'bebidas', 'picaderas'];
-
-        // Hacemos una copia para no dañar el original
-        let productosOrdenados = [...todosLosProductos];
-
-        productosOrdenados.sort((a, b) => {
-            const aEsBar = catBar.includes(a.categoria);
-            const bEsBar = catBar.includes(b.categoria);
-
-            if (esModoBar) {
-                // MODO FIESTA: Bebidas primero (-1 sube, 1 baja)
-                if (aEsBar && !bEsBar) return -1;
-                if (!aEsBar && bEsBar) return 1;
-            } else {
-                // MODO RESTAURANTE: Comida primero (Bebidas al final)
-                if (aEsBar && !bEsBar) return 1;
-                if (!aEsBar && bEsBar) return -1;
-            }
-            return 0; // Si ambos son del mismo tipo, mantiene el orden original
-        });
-
-        // Renderizamos la lista YA ordenada
-        renderizarMenu(productosOrdenados);
+        renderizarMenu(todosLosProductos);
     }
 
     // 3. REORDENAR LOS BOTONES DE FILTRO (Arriba)
-    // (Asegúrate de tener esta función definida más abajo en tu script, como me mostraste antes)
-    if (typeof reordenarBotonesFiltro === 'function') {
-        reordenarBotonesFiltro(esModoBar);
-    }
+    reordenarBotonesFiltro(esModoBar);
 }
-
- 
-
 
 function reordenarBotonesFiltro(modoBar) {
     // Buscamos el contenedor de los botones (el <nav>)
@@ -670,19 +640,3 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
