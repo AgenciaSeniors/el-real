@@ -64,7 +64,11 @@ function renderizarMenu(lista) {
         'entrantes': { nombre: 'Entrantes', icono: '🍟' },
         'cafes': { nombre: 'Cafés', icono: '☕' },
         'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
-        'completas': { nombre: 'Completas', icono: '🍽️' },
+       'completas': { 
+            nombre: 'Completas', 
+            icono: '🍽️', 
+            info: '(Incluyen arroz, vianda hervida y ensalada)' // <--- TEXTO AGREGADO
+        },
         'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
         'cerdo': { nombre: 'Cerdo', icono: '🥩' },
         'res': { nombre: 'Res', icono: '🍖' },
@@ -671,4 +675,5 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
