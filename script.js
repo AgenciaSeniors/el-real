@@ -42,6 +42,7 @@ async function cargarMenu() {
 }
 
 // 2. RENDERIZAR
+// 2. RENDERIZAR (CORREGIDA PARA MODO BAR)
 function renderizarMenu(lista) {
     const contenedor = document.getElementById('menu-grid');
     if (!contenedor) return;
@@ -52,21 +53,20 @@ function renderizarMenu(lista) {
     if (lista.length === 0) {
         contenedor.innerHTML = `
             <div style="text-align:center; grid-column:1/-1; padding:40px; color:#888;">
-                <span class="material-icons" style="font-size:3rem; display:block; margin-bottom:10px;"></span>
+                <span class="material-icons" style="font-size:3rem; display:block; margin-bottom:10px;">no_meals</span>
                 No se encontraron productos.
             </div>`;
         return;
     }
 
-    // Dentro de la función renderizarMenu(lista)...
-
+    // Definimos las categorías y sus metadatos
     const categorias = {
         'entrantes': { nombre: 'Entrantes', icono: '🍟' },
         'cafes': { nombre: 'Cafés', icono: '☕' },
         'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
         'completas': { nombre: 'Completas', icono: '🍽️' },
         'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
-        'cerdo': { nombre: 'Cerdo', icono: '🥩' }, // Respetando la mayúscula del HTML
+        'cerdo': { nombre: 'Cerdo', icono: '🥩' },
         'res': { nombre: 'Res', icono: '🍖' },
         'pollo': { nombre: 'Pollo', icono: '🍗' },
         'pescados': { nombre: 'Pescados', icono: '🐟' },
@@ -83,11 +83,43 @@ function renderizarMenu(lista) {
         'picaderas': { nombre: 'Picaderas', icono: '🍢' },
         'agregados': { nombre: 'Agregados', icono: '🧀' }
     };
-    Object.keys(categorias).forEach(catKey => {
-                const productosCategoria = lista.filter(p => p.categoria === catKey);
-                if (productosCategoria.length > 0) {
-                    const catInfo = categorias[catKey];
-                    const seccionHTML = `
+
+    // --- NUEVA LÓGICA DE ORDENAMIENTO ---
+    
+    // 1. Obtenemos todas las claves (nombres internos) en el orden original
+    let ordenCategorias = Object.keys(categorias);
+
+    // 2. Verificamos si el MODO BAR está activo
+    const checkboxBar = document.getElementById('toggle-bar');
+    const esModoBar = checkboxBar ? checkboxBar.checked : false;
+
+    // 3. Si es Modo Bar, reordenamos el array de claves
+    if (esModoBar) {
+        const vipsBar = [
+            'cervezas', 'cocteles', 'vinos', 'tragos', 
+            'cremas', 'picaderas', 'bebidas'
+        ];
+
+        ordenCategorias.sort((a, b) => {
+            const esVipA = vipsBar.includes(a);
+            const esVipB = vipsBar.includes(b);
+
+            // Si A es del bar y B no, A va primero (-1)
+            if (esVipA && !esVipB) return -1;
+            // Si B es del bar y A no, B va primero (1)
+            if (!esVipA && esVipB) return 1;
+            // Si ambos son iguales, se mantiene el orden original
+            return 0;
+        });
+    }
+
+    // 4. Iteramos sobre el array ORDENADO (ordenCategorias) en lugar del objeto directo
+    ordenCategorias.forEach(catKey => {
+        const productosCategoria = lista.filter(p => p.categoria === catKey);
+        
+        if (productosCategoria.length > 0) {
+            const catInfo = categorias[catKey];
+            const seccionHTML = `
                 <div class="category-section" id="section-${catKey}" data-categoria="${catKey}">
                     <h2 class="category-title-real">${catInfo.icono} ${catInfo.nombre}</h2>
                     <div class="horizontal-scroll">
@@ -107,10 +139,9 @@ function renderizarMenu(lista) {
                                     <h3>${item.nombre}</h3>
                                     <div class="card-footer">
                                         <span class="card-price">$${item.precio}</span>
-                                     <button class="btn-bag-action" onclick='event.stopPropagation(); agregarAlCarrito(${JSON.stringify(item)})'>
-    <span class="material-icons">shopping_bag</span>
-</button>
-    </button>
+                                        <button class="btn-bag-action" onclick='event.stopPropagation(); agregarAlCarrito(${JSON.stringify(item)})'>
+                                            <span class="material-icons">shopping_bag</span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -122,9 +153,9 @@ function renderizarMenu(lista) {
             contenedor.innerHTML += seccionHTML;
         }
     });
+
     activarVigilanciaCategorias();
 }
-
 // ... EL RESTO DE FUNCIONES (abrirDetalle, filtrar, enviarOpinion) SE QUEDAN IGUAL ...
 // (Copia y pega el resto de tu script.js anterior aquí abajo, ya que la lógica no cambia)
 // Solo asegúrate de copiar desde "async function abrirDetalle(id)..." hasta el final.
@@ -640,3 +671,4 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
