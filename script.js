@@ -102,7 +102,7 @@ function renderizarMenu(lista) {
     if (esModoBar) {
         const vipsBar = [
             'cervezas', 'cocteles', 'vinos', 'tragos', 
-            'cremas', 'picaderas', 'bebidas'
+            'cremas', 'picaderas', 'bebidas s/a'
         ];
 
         ordenCategorias.sort((a, b) => {
@@ -676,6 +676,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
