@@ -74,6 +74,7 @@ function renderizarMenu(lista) {
         'res': { nombre: 'Res', icono: '🍖' },
         'pollo': { nombre: 'Pollo', icono: '🍗' },
         'pescados': { nombre: 'Pescados', icono: '🐟' },
+        'mariscos': { nombre: 'Mariscos', icono: '🦐' },
         'pizzas': { nombre: 'Pizzas', icono: '🍕' },
         'lasaña': { nombre: 'Lasaña', icono: '🥘' },
         'spaghettis': { nombre: 'Spaghettis', icono: '🍝' },
@@ -675,5 +676,6 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
