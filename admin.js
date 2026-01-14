@@ -162,7 +162,13 @@ function prepararEdicion(id) {
     document.getElementById('edit-id').value = p.id;
     document.getElementById('nombre').value = p.nombre;
     document.getElementById('precio').value = p.precio;
-    document.getElementById('categoria').value = p.categoria;
+    
+    // --- ESTA ES LA PARTE QUE ARREGLA EL ERROR ---
+    // Convierte lo que viene de la base de datos a minúsculas para que coincida con tu selector
+    let categoriaLimpia = (p.categoria || "").toString();
+    document.getElementById('categoria').value = categoriaLimpia.toLowerCase().trim();
+    // ---------------------------------------------
+
     document.getElementById('descripcion').value = p.descripcion || '';
     document.getElementById('destacado').checked = p.destacado;
 
@@ -271,4 +277,5 @@ async function guardarTelefono() {
 }
 
 // Inicializar
+
 document.addEventListener('DOMContentLoaded', cargarTelefono);
