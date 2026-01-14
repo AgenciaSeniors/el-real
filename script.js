@@ -78,7 +78,7 @@ function renderizarMenu(lista) {
         'pizzas': { nombre: 'Pizzas', icono: '🍕' },
         'lasaña': { nombre: 'Lasaña', icono: '🥘' },
         'spaghettis': { nombre: 'Spaghettis', icono: '🍝' },
-        'bebidas': { nombre: 'Bebidas S/A', icono: '🥤' },
+        'bebidas s/a': { nombre: 'Bebidas S/A', icono: '🥤' },
         'cervezas': { nombre: 'Cervezas', icono: '🍺' },
         'cocteles': { nombre: 'Cocteles', icono: '🍹' },
         'vinos': { nombre: 'Vinos', icono: '🍷' },
@@ -676,6 +676,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
