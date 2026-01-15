@@ -104,6 +104,7 @@ async function cargarAdmin() {
 }
 
 // 3. GUARDAR / EDITAR
+// 3. GUARDAR / EDITAR (CON COMPRESIÓN)
 const form = document.getElementById('form-producto');
 if(form) {
     form.addEventListener('submit', async (e) => {
@@ -111,16 +112,29 @@ if(form) {
         const btn = document.getElementById('btn-submit');
         const idEdicion = document.getElementById('edit-id').value;
         
-        btn.textContent = "Guardando..."; btn.disabled = true;
+        btn.textContent = "Procesando..."; btn.disabled = true;
 
         try {
             const fileInput = document.getElementById('imagen-file');
             let urlImagen = null;
 
             if (fileInput && fileInput.files.length > 0) {
-                const archivo = fileInput.files[0];
-                const nombreArchivo = `real_${Date.now()}.${archivo.name.split('.').pop()}`;
-                const { error: upErr } = await supabaseClient.storage.from('imagenes').upload(nombreArchivo, archivo);
+                // --- CAMBIO: COMPRIMIR ANTES DE SUBIR ---
+                btn.textContent = "Optimizando foto...";
+                const archivoOriginal = fileInput.files[0];
+                
+                // Aquí llamamos a la función mágica
+                const archivoOptimizado = await comprimirImagen(archivoOriginal);
+                
+                console.log(`Peso original: ${(archivoOriginal.size/1024).toFixed(2)}kb`);
+                console.log(`Peso optimizado: ${(archivoOptimizado.size/1024).toFixed(2)}kb`);
+                // ----------------------------------------
+
+                btn.textContent = "Subiendo...";
+                // Usamos archivoOptimizado en lugar del original
+                const nombreArchivo = `real_${Date.now()}.webp`; // Forzamos extensión webp
+                const { error: upErr } = await supabaseClient.storage.from('imagenes').upload(nombreArchivo, archivoOptimizado);
+                
                 if (upErr) throw upErr;
                 const { data } = supabaseClient.storage.from('imagenes').getPublicUrl(nombreArchivo);
                 urlImagen = data.publicUrl;
@@ -129,7 +143,8 @@ if(form) {
             const datos = {
                 nombre: document.getElementById('nombre').value,
                 precio: parseFloat(document.getElementById('precio').value),
-                categoria: document.getElementById('categoria').value,
+                // Aseguramos que la categoría vaya limpia siempre
+                categoria: document.getElementById('categoria').value.toLowerCase().trim(),
                 descripcion: document.getElementById('descripcion').value,
                 destacado: document.getElementById('destacado').checked,
                 restaurant_id: CONFIG.RESTAURANT_ID
@@ -147,6 +162,7 @@ if(form) {
             cancelarEdicion();
             cargarAdmin();
         } catch (error) {
+            console.error(error);
             alert("Error: " + error.message);
         } finally {
             btn.textContent = idEdicion ? "ACTUALIZAR PRODUCTO" : "GUARDAR PRODUCTO";
@@ -332,4 +348,5 @@ function comprimirImagen(archivo) {
         lector.onerror = (err) => reject(err);
     });
 }
+
 
