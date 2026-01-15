@@ -62,31 +62,32 @@ function renderizarMenu(lista) {
     // Definimos las categorías y sus metadatos
     const categorias = {
         'entrantes': { nombre: 'Entrantes', icono: '🍟' },
-        'cafes': { nombre: 'Cafés', icono: '☕' },
-        'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
-       'completas': { 
+          'cerdo': { nombre: 'Cerdo', icono: '🥩' },
+        'res': { nombre: 'Res', icono: '🍖' },
+        'pollo': { nombre: 'Pollo', icono: '🍗' },
+        'pescados': { nombre: 'Pescados', icono: '🐟' },
+        'mariscos': { nombre: 'Mariscos', icono: '🦐' },
+         'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
+         'completas': { 
             nombre: 'Completas', 
             icono: '🍽️', 
             info: '(Incluyen arroz, vianda hervida y ensalada)' // <--- TEXTO AGREGADO
         },
         'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
-        'cerdo': { nombre: 'Cerdo', icono: '🥩' },
-        'res': { nombre: 'Res', icono: '🍖' },
-        'pollo': { nombre: 'Pollo', icono: '🍗' },
-        'pescados': { nombre: 'Pescados', icono: '🐟' },
-        'mariscos': { nombre: 'Mariscos', icono: '🦐' },
-        'pizzas': { nombre: 'Pizzas', icono: '🍕' },
-        'lasaña': { nombre: 'Lasaña', icono: '🥘' },
+         'pizzas': { nombre: 'Pizzas', icono: '🍕' },
         'spaghettis': { nombre: 'Spaghettis', icono: '🍝' },
+         'agregados': { nombre: 'Agregados', icono: '🧀' },
+        'lasaña': { nombre: 'Lasaña', icono: '🥘' },
+        'postres': { nombre: 'Postres', icono: '🍨' },
+        'cafes': { nombre: 'Cafés', icono: '☕' },
         'bebidas s/a': { nombre: 'Bebidas S/A', icono: '🥤' },
         'cervezas': { nombre: 'Cervezas', icono: '🍺' },
         'cocteles': { nombre: 'Cocteles', icono: '🍹' },
         'vinos': { nombre: 'Vinos', icono: '🍷' },
         'tragos': { nombre: 'Tragos', icono: '🥃' },
         'cremas': { nombre: 'Cremas', icono: '🍸' },
-        'postres': { nombre: 'Postres', icono: '🍨' },
-        'picaderas': { nombre: 'Picaderas', icono: '🍢' },
-        'agregados': { nombre: 'Agregados', icono: '🧀' }
+        'picaderas': { nombre: 'Picaderas', icono: '🍢' }
+       
     };
 
     // --- NUEVA LÓGICA DE ORDENAMIENTO ---
@@ -676,6 +677,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
