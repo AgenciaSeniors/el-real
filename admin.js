@@ -133,10 +133,10 @@ if(form) {
                 btn.textContent = "Subiendo...";
                 // Usamos archivoOptimizado en lugar del original
                 const nombreArchivo = `real_${Date.now()}.webp`; // Forzamos extensión webp
-                const { error: upErr } = await supabaseClient.storage.from('imagenes').upload(nombreArchivo, archivoOptimizado);
+                const { error: upErr } = await supabaseClient.storage.from('img real').upload(nombreArchivo, archivoOptimizado);
                 
                 if (upErr) throw upErr;
-                const { data } = supabaseClient.storage.from('imagenes').getPublicUrl(nombreArchivo);
+                const { data } = supabaseClient.storage.from('img real').getPublicUrl(nombreArchivo);
                 urlImagen = data.publicUrl;
             }
 
@@ -348,5 +348,6 @@ function comprimirImagen(archivo) {
         lector.onerror = (err) => reject(err);
     });
 }
+
 
 
