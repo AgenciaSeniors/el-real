@@ -581,7 +581,7 @@ function enviarPedidoWhatsApp() {
             alert("⚠️ Escribe tu dirección.");
             return;
         }
-        mensaje += ` *A DOMICILIO*\n ${direccion};
+        mensaje += ` *A DOMICILIO*\n ${direccion}`;
     } else {
         mensaje += ` *RECOGER EN LOCAL*`;
     }
@@ -683,6 +683,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
