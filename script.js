@@ -561,7 +561,14 @@ function setMetodo(metodo) {
 // 7. ENVIAR A WHATSAPP
 function enviarPedidoWhatsApp() {
     const direccion = document.getElementById('input-direccion').value;
-    const totalPrecio = carrito.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
+   // --- MODIFICACIÓN: Calcular total con envío ---
+    let totalPrecio = carrito.reduce((sum, i) => sum + (i.precio * i.cantidad), 0);
+    
+    // Si es domicilio, le sumamos los 200 a la variable antes de crear el mensaje
+    if (metodoEntrega === 'domicilio') {
+        totalPrecio += 200; 
+    }
+    // ----------------------------------------------
     
     let mensaje = ` Hola *El Real*, pedido nuevo:\n\n`;
     carrito.forEach(item => {
@@ -574,7 +581,7 @@ function enviarPedidoWhatsApp() {
             alert("⚠️ Escribe tu dirección.");
             return;
         }
-        mensaje += ` *A DOMICILIO*\n ${direccion}\n Quedo a espera del costo de envío.`;
+        mensaje += ` *A DOMICILIO*\n ${direccion};
     } else {
         mensaje += ` *RECOGER EN LOCAL*`;
     }
@@ -676,6 +683,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
