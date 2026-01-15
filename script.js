@@ -69,9 +69,8 @@ function renderizarMenu(lista) {
         'mariscos': { nombre: 'Mariscos', icono: '🦐' },
          'sugerencias del chef': { nombre: 'Sugerencias del Chef', icono: '👑' },
          'completas': { 
-            nombre: 'Completas', 
-            icono: '🍽️', 
-            info: '(Incluyen arroz, vianda hervida y ensalada)' // <--- TEXTO AGREGADO
+    nombre: 'Completas <br><span style="font-size: 0.55em; display: block; font-family: sans-serif; font-weight: normal; opacity: 0.8; margin-top: 5px;">(Incluyen arroz, vianda hervida y ensalada)</span>', 
+    icono: '🍽️' 
         },
         'guarniciones': { nombre: 'Guarniciones', icono: '🥗' },
          'pizzas': { nombre: 'Pizzas', icono: '🍕' },
@@ -677,6 +676,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
