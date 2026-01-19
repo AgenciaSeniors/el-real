@@ -586,8 +586,8 @@ function enviarPedidoWhatsApp() {
         mensaje += ` *RECOGER EN LOCAL*`;
     }
 
-   const url = `https://wa.me/${telefonoRestaurant}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
+  const url = `https://api.whatsapp.com/send?phone=${telefonoLimpio}&text=${encodeURIComponent(mensaje)}`;
+   window.location.href = url;
     cerrarModalPedido();
 }
 // ==========================================
@@ -683,6 +683,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
