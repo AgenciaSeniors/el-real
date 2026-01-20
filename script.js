@@ -586,7 +586,7 @@ function enviarPedidoWhatsApp() {
         mensaje += ` *RECOGER EN LOCAL*`;
     }
 
-  const url = `https://api.whatsapp.com/send?phone=${telefonoLimpio}&text=${encodeURIComponent(mensaje)}`;
+  const url = `https://api.whatsapp.com/send?phone=${telefonoRestaurant}&text=${encodeURIComponent(mensaje)}`;
     console.log("Redirigiendo a:", url);
    window.location.href = url;
     cerrarModalPedido();
@@ -684,6 +684,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
