@@ -587,6 +587,7 @@ function enviarPedidoWhatsApp() {
     }
 
   const url = `https://api.whatsapp.com/send?phone=${telefonoLimpio}&text=${encodeURIComponent(mensaje)}`;
+    console.log("Redirigiendo a:", url);
    window.location.href = url;
     cerrarModalPedido();
 }
@@ -683,6 +684,7 @@ function actualizarTextoTotalModal() {
         labelTotal.innerHTML = `$${total} ${textoInfo}`;
     }
 }
+
 
 
 
