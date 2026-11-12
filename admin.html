@@ -121,9 +121,17 @@
 
             <div style="background: #000; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333; display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 1.2rem;">🔍</span>
-                <input type="text" id="buscadorInventario" placeholder="Buscar plato..." style="width: 100%; background: transparent; color: white; border: none; outline: none; font-size: 0.95rem;">
+                <input type="text" id="buscadorInventario" placeholder="Buscar plato o categoría..." aria-label="Buscar en el inventario" style="width: 100%; background: transparent; color: white; border: none; outline: none; font-size: 0.95rem;">
             </div>
             
+            <div class="inventory-controls">
+                <label for="filtro-categoria">Categoría</label>
+                <select id="filtro-categoria" class="input-stylish"><option value="">Todas las categorías</option></select>
+                <div class="inventory-selection">
+                    <label><input type="checkbox" id="seleccionar-visibles"> Seleccionar visibles</label>
+                    <button type="button" id="eliminar-seleccionados" disabled>Eliminar seleccionados (0)</button>
+                </div>
+            </div>
             <div id="lista-admin" class="inventory-list">
                 </div>
         </div>
@@ -134,7 +142,7 @@
 
 
 
-<script src="admin.js?v=1.1"></script>
+<script src="admin.js?v=1.2"></script>
 </body>
 
 </html>

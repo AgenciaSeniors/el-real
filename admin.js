@@ -1,6 +1,41 @@
 // admin.js - VERSIÓN EL REAL
 
-let inventarioGlobal = []; 
+let inventarioGlobal = [];
+const seleccionados = new Set();
+let eliminando = false;
+const normalizar = valor => String(valor || '').trim().toLocaleLowerCase('es');
+const escapar = valor => String(valor ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+const categoriaProducto = item => normalizar(item.categoria) || 'sin categoría';
+
+function productosVisibles() {
+    const texto = normalizar(document.getElementById('buscadorInventario').value);
+    const categoria = document.getElementById('filtro-categoria').value;
+    return inventarioGlobal.filter(item => (!categoria || categoriaProducto(item) === categoria) &&
+        normalizar(`${item.nombre} ${item.categoria || ''}`).includes(texto));
+}
+
+function actualizarSeleccion() {
+    const visibles = productosVisibles();
+    const control = document.getElementById('seleccionar-visibles');
+    const cantidad = visibles.filter(item => seleccionados.has(String(item.id))).length;
+    control.checked = visibles.length > 0 && cantidad === visibles.length;
+    control.indeterminate = cantidad > 0 && cantidad < visibles.length;
+    control.disabled = eliminando || !visibles.length;
+    document.getElementById('eliminar-seleccionados').disabled = eliminando || !seleccionados.size;
+    document.getElementById('eliminar-seleccionados').textContent = eliminando ? 'Eliminando…' : `Eliminar seleccionados (${seleccionados.size})`;
+    document.querySelectorAll('.seleccion-producto').forEach(input => { input.disabled = eliminando; });
+}
+
+function actualizarCategorias() {
+    const filtro = document.getElementById('filtro-categoria');
+    const anterior = filtro.value;
+    const categorias = new Set(inventarioGlobal.map(categoriaProducto));
+    if (anterior) categorias.add(anterior);
+    const etiquetas = new Map(Array.from(document.querySelectorAll('#categoria option')).map(o => [o.value, o.textContent]));
+    filtro.innerHTML = '<option value="">Todas las categorías</option>' + [...categorias].sort((a,b) => a.localeCompare(b, 'es')).map(c =>
+        `<option value="${escapar(c)}">${escapar(etiquetas.get(c) || c)}</option>`).join('');
+    filtro.value = anterior;
+}
 
 // 1. CHEQUEO DE SESIÓN
 async function checkAuth() {
@@ -28,7 +63,6 @@ async function cerrarSesion() {
 // 2. CARGAR PRODUCTOS
 async function cargarAdmin() {
     const lista = document.getElementById('lista-admin');
-    const contador = document.getElementById('contador-productos');
     if (!lista) return;
 
     lista.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">⟳ Cargando inventario...</div>';
@@ -49,15 +83,31 @@ async function cargarAdmin() {
         
         inventarioGlobal = productos || [];
 
-        if (contador) contador.textContent = `${inventarioGlobal.length} items`;
+        const ids = new Set(inventarioGlobal.map(item => String(item.id)));
+        for (const id of seleccionados) if (!ids.has(id)) seleccionados.delete(id);
+        actualizarCategorias();
+        renderizarInventario();
 
-        if (inventarioGlobal.length === 0) {
-            lista.innerHTML = '<p style="text-align:center; padding:20px; color:#888;">Inventario vacío. Agrega tu primer plato.</p>';
-            return;
-        }
+    } catch (err) {
+        console.error("Fallo:", err);
+        lista.innerHTML = `<p style="color:#ff5252; padding:20px;">Error: ${err.message}</p>`;
+    }
+}
 
+function renderizarInventario() {
+    const lista = document.getElementById('lista-admin');
+    const visibles = productosVisibles();
+    document.getElementById('contador-productos').textContent = `${visibles.length} de ${inventarioGlobal.length} productos`;
+    const grupos = new Map();
+    visibles.forEach(item => {
+        const categoria = categoriaProducto(item);
+        if (!grupos.has(categoria)) grupos.set(categoria, []);
+        grupos.get(categoria).push(item);
+    });
+    const etiquetas = new Map(Array.from(document.querySelectorAll('#categoria option')).map(o => [o.value, o.textContent]));
+    lista.innerHTML = [...grupos].sort(([a], [b]) => a.localeCompare(b, 'es')).map(([categoria, items]) => {
         // GENERAR HTML
-        lista.innerHTML = inventarioGlobal.map(item => {
+        const filas = items.map(item => {
             const esAgotado = item.estado === 'agotado';
             
             // COLOR ROSA PARA DESTACADO EL REAL (#ff007f)
@@ -65,13 +115,14 @@ async function cargarAdmin() {
             
             return `
                 <div class="inventory-item">
-                    <img src="${item.imagen_url || 'https://via.placeholder.com/60'}" 
+                    <input type="checkbox" class="seleccion-producto" data-id="${escapar(item.id)}" aria-label="Seleccionar ${escapar(item.nombre)}" ${seleccionados.has(String(item.id)) ? 'checked' : ''}>
+                    <img src="${escapar(item.imagen_url || 'img/logo.png')}"
                          class="item-thumb" 
-                         onerror="this.src='https://via.placeholder.com/60'">
+                         alt="" onerror="this.onerror=null;this.src='img/logo.png'">
                     
                     <div class="item-meta">
-                        <span class="item-title">${item.nombre} ${item.destacado ? '👑' : ''}</span>
-                        <span class="item-price">$${item.precio}</span>
+                        <span class="item-title">${escapar(item.nombre)} ${item.destacado ? '👑' : ''}</span>
+                        <span class="item-price">$${escapar(item.precio)}</span>
                         <span class="item-status ${esAgotado ? 'status-bad' : 'status-ok'}">
                             ${esAgotado ? 'AGOTADO' : 'DISPONIBLE'}
                         </span>
@@ -97,10 +148,9 @@ async function cargarAdmin() {
             `;
         }).join('');
 
-    } catch (err) {
-        console.error("Fallo:", err);
-        lista.innerHTML = `<p style="color:#ff5252; padding:20px;">Error: ${err.message}</p>`;
-    }
+        return `<section class="inventory-category"><h4>${escapar(etiquetas.get(categoria) || categoria)} <span>(${items.length})</span></h4>${filas}</section>`;
+    }).join('') || '<p class="inventory-empty">' + (inventarioGlobal.length ? 'No hay productos que coincidan con los filtros.' : 'Inventario vacío. Agrega tu primer plato.') + '</p>';
+    actualizarSeleccion();
 }
 
 // 3. GUARDAR / EDITAR
@@ -221,11 +271,33 @@ async function toggleEstado(id, est) {
     await supabaseClient.from('productos').update({ estado: nuevo }).eq('id', id);
     cargarAdmin();
 }
-async function eliminarProducto(id) {
-    if(confirm("¿Eliminar definitivamente?")) {
-        await supabaseClient.from('productos').update({ activo: false }).eq('id', id);
-        cargarAdmin();
+async function eliminarProductos(ids) {
+    if (eliminando || !ids.length) return;
+    if (!confirm(ids.length === 1 ? '¿Eliminar este producto?' : `¿Eliminar los ${ids.length} productos seleccionados?`)) return;
+    eliminando = true;
+    actualizarSeleccion();
+    try {
+        const { data, error } = await supabaseClient.from('productos')
+            .update({ activo: false }).eq('restaurant_id', CONFIG.RESTAURANT_ID).in('id', ids).select('id');
+        if (error) throw error;
+        const borrados = new Set((data || []).map(item => String(item.id)));
+        const posicion = { x: window.scrollX, y: window.scrollY };
+        inventarioGlobal = inventarioGlobal.filter(item => !borrados.has(String(item.id)));
+        borrados.forEach(id => seleccionados.delete(id));
+        if (borrados.has(document.getElementById('edit-id').value)) cancelarEdicion();
+        renderizarInventario();
+        window.scrollTo(posicion.x, posicion.y);
+        if (borrados.size !== ids.length) alert('Algunos productos no se pudieron eliminar. Comprueba tus permisos y vuelve a intentarlo.');
+    } catch (error) {
+        alert('No se pudieron eliminar los productos: ' + error.message);
+    } finally {
+        eliminando = false;
+        actualizarSeleccion();
     }
+}
+
+function eliminarProducto(id) {
+    return eliminarProductos([id]);
 }
 
 // Vista previa de imagen
@@ -246,15 +318,23 @@ document.addEventListener('change', (e) => {
     }
 });
 
-// Buscador
-document.getElementById('buscadorInventario').addEventListener('input', function(e) {
-    const texto = e.target.value.toLowerCase().trim();
-    const items = document.querySelectorAll('.inventory-item');
-    items.forEach(item => {
-        const contenido = item.innerText.toLowerCase();
-        item.style.display = contenido.includes(texto) ? "flex" : "none";
-    });
+// Los filtros viven fuera de la lista y se conservan al actualizar productos.
+document.getElementById('buscadorInventario').addEventListener('input', renderizarInventario);
+document.getElementById('filtro-categoria').addEventListener('change', renderizarInventario);
+document.getElementById('lista-admin').addEventListener('change', e => {
+    if (!e.target.matches('.seleccion-producto')) return;
+    if (e.target.checked) seleccionados.add(e.target.dataset.id);
+    else seleccionados.delete(e.target.dataset.id);
+    actualizarSeleccion();
 });
+document.getElementById('seleccionar-visibles').addEventListener('change', e => {
+    productosVisibles().forEach(item => {
+        if (e.target.checked) seleccionados.add(String(item.id));
+        else seleccionados.delete(String(item.id));
+    });
+    renderizarInventario();
+});
+document.getElementById('eliminar-seleccionados').addEventListener('click', () => eliminarProductos([...seleccionados]));
 
 document.addEventListener('DOMContentLoaded', checkAuth);
 // --- LÓGICA DEL TELÉFONO (Corregida) ---

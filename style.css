@@ -1517,3 +1517,28 @@ body.modo-bar-activado .filter-btn.active {
 #menu-grid {
     display: flex !important; flex-direction: column !important; gap: 30px;
 }
+
+/* Filtros y selección del inventario del panel */
+.inventory-zone { min-width: 0; }
+.inventory-controls { display: grid; gap: 10px; margin-bottom: 20px; color: #ccc; }
+.inventory-selection { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; }
+.inventory-selection label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.inventory-selection input, .seleccion-producto { accent-color: #ff007f; width: 20px; height: 20px; flex-shrink: 0; }
+#eliminar-seleccionados { background: #a62640; color: white; border: 1px solid #cf3b59; border-radius: 8px; padding: 10px 14px; cursor: pointer; }
+#eliminar-seleccionados:disabled { opacity: .45; cursor: default; }
+.inventory-category { margin-bottom: 24px; }
+.inventory-category h4 { margin: 0; padding: 12px; color: #ff80b8; border-bottom: 1px solid #444; }
+.inventory-category h4 span { color: #aaa; font-weight: normal; }
+.inventory-empty { color: #aaa; padding: 20px; }
+.inventory-item .item-meta { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 650px) {
+    .inventory-zone { padding: 14px; }
+    .inventory-item { flex-wrap: wrap; gap: 10px; padding: 12px; }
+    .inventory-item .item-meta { flex: 1; }
+    .inventory-item .action-btn-group { width: 100%; justify-content: flex-end; }
+}
+
+@media (max-width: 900px) {
+    .admin-body .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+    .admin-body .upload-zone { min-width: 0; }
+}
