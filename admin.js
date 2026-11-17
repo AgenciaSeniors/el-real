@@ -11,7 +11,7 @@ function productosVisibles() {
     const texto = normalizar(document.getElementById('buscadorInventario').value);
     const categoria = document.getElementById('filtro-categoria').value;
     return inventarioGlobal.filter(item => (!categoria || categoriaProducto(item) === categoria) &&
-        normalizar(`${item.nombre} ${item.categoria || ''}`).includes(texto));
+        normalizar(`${item.nombre} ${categoriasMenu.find(c => c.id === categoriaProducto(item))?.nombre || item.categoria || ''}`).includes(texto));
 }
 
 function actualizarSeleccion() {
@@ -48,7 +48,8 @@ async function checkAuth() {
         if (!session) {
             window.location.href = "login.html";
         } else {
-            cargarAdmin();
+            await cargarAdmin();
+            await cargarPersonalizacion();
         }
     } catch (err) {
         console.error("Error en Auth:", err);
@@ -85,7 +86,8 @@ async function cargarAdmin() {
 
         const ids = new Set(inventarioGlobal.map(item => String(item.id)));
         for (const id of seleccionados) if (!ids.has(id)) seleccionados.delete(id);
-        actualizarCategorias();
+        if (categoriasListas) mostrarCategorias();
+        else actualizarCategorias();
         renderizarInventario();
 
     } catch (err) {
@@ -162,9 +164,23 @@ if(form) {
         const btn = document.getElementById('btn-submit');
         const idEdicion = document.getElementById('edit-id').value;
         
+        if (categoriasOcupadas || !categoriasListas) return;
         btn.textContent = "Procesando..."; btn.disabled = true;
+        categoriasOcupadas = true;
+        mostrarCategorias();
 
         try {
+            const nueva = document.getElementById('categoria').value === '__nueva__';
+            const nombreCategoria = document.getElementById('nueva-categoria').value.trim();
+            let categoriasActuales;
+            let categoriaId = document.getElementById('categoria').value;
+            if (nueva) {
+                if (!nombreCategoria) throw new Error('Escribe el nombre de la nueva categoría.');
+                categoriasActuales = await MenuSettings.read('categorias') ?? categoriasMenu;
+                if (categoriasActuales.some(c => normalizar(c.nombre) === normalizar(nombreCategoria) || c.id === normalizar(nombreCategoria))) throw new Error('Ya existe una categoría con ese nombre. Selecciónala en la lista.');
+                // Stable identifiers let names change without rewriting products.
+                categoriaId = `cat_${crypto.randomUUID()}`;
+            }
             const fileInput = document.getElementById('imagen-file');
             let urlImagen = null;
 
@@ -194,7 +210,7 @@ if(form) {
                 nombre: document.getElementById('nombre').value,
                 precio: parseFloat(document.getElementById('precio').value),
                 // Aseguramos que la categoría vaya limpia siempre
-                categoria: document.getElementById('categoria').value.toLowerCase().trim(),
+                categoria: categoriaId,
                 descripcion: document.getElementById('descripcion').value,
                 destacado: document.getElementById('destacado').checked,
                 restaurant_id: CONFIG.RESTAURANT_ID
@@ -208,7 +224,15 @@ if(form) {
 
             if (error) throw error;
             
-            alert(idEdicion ? "Producto actualizado" : "Producto creado");
+            let aviso = '';
+            if (nueva) {
+                const categoria = {id: categoriaId, nombre: nombreCategoria};
+                categoriasMenu = [...categoriasActuales, categoria];
+                try { await MenuSettings.write('categorias', categoriasMenu); }
+                catch (error) { aviso = '\nEl producto se guardó, pero no se pudo registrar el nombre de su categoría: ' + error.message + '. Puedes corregirlo en Categorías de la carta.'; }
+            }
+            mostrarCategorias();
+            alert((idEdicion ? "Producto actualizado" : "Producto creado") + aviso);
             cancelarEdicion();
             cargarAdmin();
         } catch (error) {
@@ -217,6 +241,8 @@ if(form) {
         } finally {
             btn.textContent = idEdicion ? "ACTUALIZAR PRODUCTO" : "GUARDAR PRODUCTO";
             btn.disabled = false;
+            categoriasOcupadas = false;
+            mostrarCategorias();
         }
     });
 }
@@ -233,6 +259,7 @@ function prepararEdicion(id) {
     // Convierte lo que viene de la base de datos a minúsculas para que coincida con tu selector
     let categoriaLimpia = (p.categoria || "").toString();
     document.getElementById('categoria').value = categoriaLimpia.toLowerCase().trim();
+    actualizarCampoNuevaCategoria();
     // ---------------------------------------------
 
     document.getElementById('descripcion').value = p.descripcion || '';
@@ -253,6 +280,7 @@ function prepararEdicion(id) {
 
 function cancelarEdicion() {
     if (form) form.reset();
+    actualizarCampoNuevaCategoria();
     document.getElementById('edit-id').value = "";
     document.getElementById('btn-submit').textContent = "GUARDAR PRODUCTO";
     document.getElementById('btn-cancelar').style.display = "none";
@@ -376,7 +404,7 @@ async function guardarTelefono() {
 
 document.addEventListener('DOMContentLoaded', cargarTelefono);
 // --- FUNCIÓN PARA COMPRIMIR IMÁGENES (Menos de 30kb) ---
-function comprimirImagen(archivo) {
+function comprimirImagen(archivo, maxWidth = 700, maxHeight = 700, calidad = 0.6) {
     return new Promise((resolve, reject) => {
         const lector = new FileReader();
         lector.readAsDataURL(archivo);
@@ -386,22 +414,14 @@ function comprimirImagen(archivo) {
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 // 1. Redimensionar (Max 700px de ancho/alto es suficiente para celular)
-                const MAX_WIDTH = 700; 
-                const MAX_HEIGHT = 700;
+                const MAX_WIDTH = maxWidth;
+                const MAX_HEIGHT = maxHeight;
                 let width = img.width;
                 let height = img.height;
 
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                } else {
-                    if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height;
-                        height = MAX_HEIGHT;
-                    }
-                }
+                const escala = Math.min(1, MAX_WIDTH / width, MAX_HEIGHT / height);
+                width = Math.max(1, Math.round(width * escala));
+                height = Math.max(1, Math.round(height * escala));
 
                 canvas.width = width;
                 canvas.height = height;
@@ -421,7 +441,7 @@ function comprimirImagen(archivo) {
                         lastModified: Date.now(),
                     });
                     resolve(nuevoArchivo);
-                }, 'image/webp', 0.6); 
+                }, 'image/webp', calidad);
             };
             img.onerror = (err) => reject(err);
         };
@@ -431,3 +451,159 @@ function comprimirImagen(archivo) {
 
 
 
+
+let categoriasMenu = [];
+let categoriasListas = false;
+let categoriasOcupadas = false;
+function mostrarCategorias() {
+    const select = document.getElementById('categoria');
+    const anterior = select.value;
+    const opciones = new Map(categoriasMenu.map(c => [c.id, c.nombre]));
+    inventarioGlobal.forEach(p => { const id = categoriaProducto(p); if (!opciones.has(id)) opciones.set(id, p.categoria || id); });
+    select.innerHTML = '<option value="" disabled>Seleccionar...</option>' + [...opciones].map(([id,nombre]) => `<option value="${escapar(id)}">${escapar(nombre)}</option>`).join('') + '<option value="__nueva__">＋ Nueva categoría…</option>';
+    select.value = opciones.has(anterior) || anterior === '__nueva__' ? anterior : '';
+    actualizarCampoNuevaCategoria();
+    const renombrar = document.getElementById('categoria-renombrar');
+    const seleccionAnterior = renombrar.value;
+    renombrar.innerHTML = '<option value="">Seleccionar categoría…</option>' + categoriasMenu.map(c => `<option value="${escapar(c.id)}">${escapar(c.nombre)}</option>`).join('');
+    renombrar.value = seleccionAnterior;
+    document.getElementById('renombrar-categoria').disabled = categoriasOcupadas || !categoriasListas;
+    document.getElementById('lista-categorias').innerHTML = categoriasMenu.map((c,i) => `<span class="category-chip">${escapar(c.nombre)}<button type="button" data-category-index="${i}" aria-label="Eliminar categoría ${escapar(c.nombre)}" ${categoriasOcupadas ? 'disabled' : ''}>×</button></span>`).join('');
+    actualizarCategorias();
+}
+async function cargarPersonalizacion() {
+    try {
+        categoriasMenu = await MenuSettings.read('categorias') ?? MenuSettings.defaults.map(c => ({...c}));
+        if (!Array.isArray(categoriasMenu)) throw new Error('Formato de categorías inválido');
+        // Include legacy product categories so they can be managed too.
+        inventarioGlobal.forEach(p => { const id = categoriaProducto(p); if (!categoriasMenu.some(c => c.id === id)) categoriasMenu.push({id, nombre:p.categoria || id}); });
+        categoriasListas = true;
+        mostrarCategorias();
+        renderizarInventario();
+        document.getElementById('renombrar-categoria').disabled = false;
+        document.getElementById('estado-categorias').textContent = '';
+    } catch (error) { document.getElementById('estado-categorias').textContent = 'No se pudieron cargar las categorías: ' + error.message; }
+    try {
+        const portada = await MenuSettings.read('portada');
+        if (portada) document.getElementById('portada-preview').src = portada;
+        document.getElementById('guardar-portada').disabled = false;
+        document.getElementById('estado-portada').textContent = '';
+    } catch (error) { document.getElementById('estado-portada').textContent = 'No se pudo cargar la portada: ' + error.message; }
+}
+async function cambiarCategorias(cambio) {
+    if (categoriasOcupadas) return;
+    categoriasOcupadas = true;
+    document.getElementById('renombrar-categoria').disabled = true;
+    mostrarCategorias();
+    const estado = document.getElementById('estado-categorias');
+    estado.textContent = 'Guardando categorías…';
+    try {
+        const actuales = await MenuSettings.read('categorias') ?? categoriasMenu;
+        const siguientes = await cambio(actuales);
+        await MenuSettings.write('categorias', siguientes);
+        categoriasMenu = siguientes;
+        estado.textContent = 'Categorías guardadas.';
+    } catch (error) { estado.textContent = error.message; }
+    finally {
+        categoriasOcupadas = false;
+        document.getElementById('renombrar-categoria').disabled = false;
+        mostrarCategorias();
+        renderizarInventario();
+    }
+}
+function actualizarCampoNuevaCategoria() {
+    const nueva = document.getElementById('categoria').value === '__nueva__';
+    document.getElementById('campo-nueva-categoria').hidden = !nueva;
+    const input = document.getElementById('nueva-categoria');
+    input.disabled = !nueva;
+    input.required = nueva;
+}
+document.getElementById('categoria').addEventListener('change', actualizarCampoNuevaCategoria);
+document.getElementById('categoria-renombrar').addEventListener('change', e => {
+    document.getElementById('nombre-categoria').value = categoriasMenu.find(c => c.id === e.target.value)?.nombre || '';
+});
+document.getElementById('form-renombrar-categoria').addEventListener('submit', e => {
+    e.preventDefault();
+    const id = document.getElementById('categoria-renombrar').value;
+    const nombre = document.getElementById('nombre-categoria').value.trim();
+    if (!id || !nombre) return;
+    cambiarCategorias(actuales => {
+        if (!actuales.some(c => c.id === id)) throw new Error('La categoría ya no existe. Recarga el panel.');
+        if (actuales.some(c => c.id !== id && normalizar(c.nombre) === normalizar(nombre))) throw new Error('Ya existe una categoría con ese nombre.');
+        return actuales.map(c => c.id === id ? {...c, nombre} : c);
+    });
+});
+document.getElementById('lista-categorias').addEventListener('click', e => {
+    const btn = e.target.closest('[data-category-index]');
+    if (!btn || categoriasOcupadas) return;
+    const categoria = categoriasMenu[Number(btn.dataset.categoryIndex)];
+    if (!confirm(`¿Eliminar la categoría «${categoria.nombre}»? Los productos no se eliminarán.`)) return;
+    cambiarCategorias(async actuales => {
+        const {data, error} = await supabaseClient.from('productos').select('categoria').eq('restaurant_id', CONFIG.RESTAURANT_ID).eq('activo', true);
+        if (error) throw error;
+        if (data.some(p => categoriaProducto(p) === categoria.id)) throw new Error('Esta categoría tiene productos activos. Muévelos a otra categoría o elimínalos primero.');
+        return actuales.filter(c => c.id !== categoria.id);
+    });
+});
+// Encode the cover once decoded; reduce quality and dimensions until it fits the budget.
+async function optimizarPortada(archivo) {
+    const imagen = await createImageBitmap(archivo);
+    try {
+        const canvas = document.createElement('canvas');
+        const escala = Math.min(1, 1280 / imagen.width, 720 / imagen.height);
+        let ancho = Math.max(1, Math.round(imagen.width * escala));
+        let alto = Math.max(1, Math.round(imagen.height * escala));
+        const limite = 150 * 1024;
+        for (let intento = 0; intento < 10; intento++) {
+            canvas.width = ancho;
+            canvas.height = alto;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(imagen, 0, 0, ancho, alto);
+            for (const calidad of [.78, .64, .5]) {
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', calidad));
+                if (!blob || blob.type !== 'image/webp') throw new Error('Este navegador no permite optimizar la portada. Usa un navegador actualizado.');
+                if (blob.size <= limite) return new File([blob], 'portada.webp', {type:'image/webp'});
+            }
+            ancho = Math.max(1, Math.round(ancho * .8));
+            alto = Math.max(1, Math.round(alto * .8));
+        }
+        throw new Error('No se pudo reducir la portada. Prueba con otra fotografía.');
+    } finally { imagen.close(); }
+}
+
+let portadaTemporal;
+document.getElementById('portada-file').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (portadaTemporal) URL.revokeObjectURL(portadaTemporal);
+    portadaTemporal = URL.createObjectURL(file);
+    document.getElementById('portada-preview').src = portadaTemporal;
+});
+document.getElementById('form-portada').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('guardar-portada');
+    const estado = document.getElementById('estado-portada');
+    const file = document.getElementById('portada-file').files[0];
+    if (!file || !['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
+        estado.textContent = 'Selecciona una imagen JPG, PNG o WebP de hasta 10 MB.'; return;
+    }
+    btn.disabled = true;
+    let uploaded;
+    try {
+        estado.textContent = 'Optimizando y guardando portada…';
+        const imagen = await optimizarPortada(file);
+        uploaded = `portada_${CONFIG.RESTAURANT_ID}_${crypto.randomUUID()}.webp`;
+        const bucket = supabaseClient.storage.from('img real');
+        const {error} = await bucket.upload(uploaded, imagen, {cacheControl:'31536000'});
+        if (error) { uploaded = null; throw error; }
+        const {data} = bucket.getPublicUrl(uploaded);
+        await MenuSettings.write('portada', data.publicUrl);
+        document.getElementById('portada-preview').src = data.publicUrl;
+        document.getElementById('form-portada').reset();
+        estado.textContent = `Portada actualizada (${Math.ceil(imagen.size / 1024)} KB). Ya está disponible en la carta.`;
+    } catch (error) {
+        if (uploaded) await supabaseClient.storage.from('img real').remove([uploaded]);
+        estado.textContent = 'No se pudo guardar la portada: ' + error.message;
+    } finally { btn.disabled = false; }
+});

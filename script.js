@@ -26,6 +26,7 @@ async function cargarMenu() {
 
         if (error) throw error;
 
+        productos.forEach(p => { p.categoria = MenuSettings.normalize(p.categoria); });
         todosLosProductos = productos.map(prod => {
             const opiniones = prod.opiniones || [];
             const total = opiniones.length;
@@ -42,7 +43,7 @@ async function cargarMenu() {
 }
 
 // 2. RENDERIZAR
-// 2. RENDERIZAR (CORREGIDA PARA MODO BAR)
+// 2. RENDERIZAR LA CARTA
 function renderizarMenu(lista) {
     const contenedor = document.getElementById('menu-grid');
     if (!contenedor) return;
@@ -51,6 +52,7 @@ function renderizarMenu(lista) {
     contenedor.innerHTML = '';
 
     if (lista.length === 0) {
+        actualizarFiltrosMenu(Object.fromEntries((categoriasPublicas ?? MenuSettings.defaults).map(c => [c.id, {nombre:MenuSettings.escape(c.nombre), icono:'🍽️'}])));
         contenedor.innerHTML = `
             <div style="text-align:center; grid-column:1/-1; padding:40px; color:#888;">
                 <span class="material-icons" style="font-size:3rem; display:block; margin-bottom:10px;">no_meals</span>
@@ -60,7 +62,7 @@ function renderizarMenu(lista) {
     }
 
     // Definimos las categorías y sus metadatos
-    const categorias = {
+    const categorias = Object.assign(Object.create(null), {
         'entrantes': { nombre: 'Entrantes', icono: '🍟' },
           'cerdo': { nombre: 'Cerdo', icono: '🥩' },
         'res': { nombre: 'Res', icono: '🍖' },
@@ -87,45 +89,28 @@ function renderizarMenu(lista) {
         'cremas': { nombre: 'Cremas', icono: '🍸' },
         'picaderas': { nombre: 'Picaderas', icono: '🍢' }
        
-    };
+    });
 
-    // --- NUEVA LÓGICA DE ORDENAMIENTO ---
-    
-    // 1. Obtenemos todas las claves (nombres internos) en el orden original
-    let ordenCategorias = Object.keys(categorias);
+    const disponibles = categoriasPublicas ?? MenuSettings.defaults;
+    const metadatos = {...categorias};
+    Object.keys(categorias).forEach(key => delete categorias[key]);
+    disponibles.forEach(c => {
+        categorias[c.id] = {nombre: MenuSettings.escape(c.nombre), icono: metadatos[c.id]?.icono || '🍽️'};
+    });
+    // Keep legacy or concurrently added products visible, even with stale settings.
+    lista.forEach(p => {
+        if (!Object.hasOwn(categorias, p.categoria)) categorias[p.categoria] = {nombre: MenuSettings.escape(p.categoria), icono:'🍽️'};
+    });
 
-    // 2. Verificamos si el MODO BAR está activo
-    const checkboxBar = document.getElementById('toggle-bar');
-    const esModoBar = checkboxBar ? checkboxBar.checked : false;
+    const ordenCategorias = Object.keys(categorias);
 
-    // 3. Si es Modo Bar, reordenamos el array de claves
-    if (esModoBar) {
-        const vipsBar = [
-            'cervezas', 'cocteles', 'vinos', 'tragos', 
-            'cremas', 'picaderas', 'bebidas s/a'
-        ];
-
-        ordenCategorias.sort((a, b) => {
-            const esVipA = vipsBar.includes(a);
-            const esVipB = vipsBar.includes(b);
-
-            // Si A es del bar y B no, A va primero (-1)
-            if (esVipA && !esVipB) return -1;
-            // Si B es del bar y A no, B va primero (1)
-            if (!esVipA && esVipB) return 1;
-            // Si ambos son iguales, se mantiene el orden original
-            return 0;
-        });
-    }
-
-    // 4. Iteramos sobre el array ORDENADO (ordenCategorias) en lugar del objeto directo
     ordenCategorias.forEach(catKey => {
         const productosCategoria = lista.filter(p => p.categoria === catKey);
         
         if (productosCategoria.length > 0) {
             const catInfo = categorias[catKey];
             const seccionHTML = `
-                <div class="category-section" id="section-${catKey}" data-categoria="${catKey}">
+                <div class="category-section" id="section-${MenuSettings.escape(catKey)}" data-categoria="${MenuSettings.escape(catKey)}">
                     <h2 class="category-title-real">${catInfo.icono} ${catInfo.nombre}</h2>
                     <div class="horizontal-scroll">
                       ${productosCategoria.map(item => {
@@ -137,7 +122,7 @@ function renderizarMenu(lista) {
                             <div class="card-real ${claseAgotado}" onclick="${esAgotado ? '' : `abrirDetalle(${item.id})`}">
                                 <div class="card-img-container">
                                     ${badgeAgotado}
-                                    <img src="${item.imagen_url || 'https://xwkmhpcombsauoozyidi.supabase.co/storage/v1/object/public/img%20real/logo.png'}" loading="lazy">
+                                    <img src="${MenuSettings.escape(item.imagen_url?.trim() || 'img/logo.png')}" loading="lazy" alt="${MenuSettings.escape(item.nombre)}" onerror="this.onerror=null;this.src='img/logo.png'">
                                     ${item.destacado ? '<span class="tag-destacado">TOP</span>' : ''}
                                 </div>
                                 <div class="card-body">
@@ -159,6 +144,7 @@ function renderizarMenu(lista) {
         }
     });
 
+    actualizarFiltrosMenu(categorias);
     activarVigilanciaCategorias();
 }
 // ... EL RESTO DE FUNCIONES (abrirDetalle, filtrar, enviarOpinion) SE QUEDAN IGUAL ...
@@ -177,7 +163,11 @@ async function abrirDetalle(id) {
     setText('det-desc', productoActual.descripcion);
     setText('det-price', `$${productoActual.precio}`);
     const imgEl = document.getElementById('det-img');
-    if(imgEl) imgEl.src = productoActual.imagen_url || '';
+    if (imgEl) {
+        imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = 'img/logo.png'; };
+        imgEl.src = productoActual.imagen_url?.trim() || 'img/logo.png';
+        imgEl.alt = productoActual.nombre;
+    }
 
     try {
         const { data: notas, error } = await supabaseClient
@@ -280,7 +270,7 @@ function actualizarBotonActivo(cat) {
     const botones = document.querySelectorAll('.filter-btn');
     botones.forEach(btn => {
         btn.classList.remove('active');
-        if (btn.getAttribute('onclick').includes(`'${cat}'`)) {
+        if (btn.dataset.categoria === cat) {
             btn.classList.add('active'); 
             btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         }
@@ -329,7 +319,39 @@ document.addEventListener('click', (e) => {
     }
 });
 
-document.addEventListener('DOMContentLoaded', cargarMenu);
+let categoriasPublicas = null;
+function actualizarFiltrosMenu(categorias) {
+    const nav = document.querySelector('.filters');
+    const activo = nav.querySelector('.active')?.dataset.categoria;
+    nav.replaceChildren();
+    const inicio = document.createElement('button');
+    inicio.className = 'filter-btn' + (!activo ? ' active' : '');
+    inicio.textContent = '🏛️ Inicio';
+    inicio.onclick = () => irAlInicio(inicio);
+    nav.append(inicio);
+    Object.entries(categorias).forEach(([id, info]) => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn' + (activo === id ? ' active' : '');
+        btn.dataset.categoria = id;
+        // Decode the escaped label as text, never as markup in the page.
+        const texto = document.createElement('textarea'); texto.innerHTML = info.nombre;
+        btn.textContent = `${info.icono} ${texto.value}`;
+        btn.onclick = () => filtrar(id, btn);
+        nav.append(btn);
+    });
+}
+document.addEventListener('DOMContentLoaded', async () => {
+    await Promise.all([
+        MenuSettings.read('categorias').then(data => { if (Array.isArray(data)) categoriasPublicas = data; }).catch(error => console.error('Categorías:', error.message)),
+        MenuSettings.read('portada').then(url => {
+            if (!url) return;
+            const img = document.querySelector('.hero-bg-cover');
+            img.onerror = () => { img.onerror = null; img.src = 'fondo-real.jpg'; };
+            img.src = url;
+        }).catch(error => console.error('Portada:', error.message))
+    ]);
+    await cargarMenu();
+});
 
 async function enviarOpinion() {
     if (!puntuacionSeleccionada || puntuacionSeleccionada === 0) {
@@ -590,77 +612,6 @@ function enviarPedidoWhatsApp() {
     console.log("Redirigiendo a:", url);
    window.location.href = url;
     cerrarModalPedido();
-}
-// ==========================================
-// 🔄 LÓGICA MODO BAR (COMPLETA: SECCIONES + BOTONES)
-// ==========================================
-
-function alternarModoBar() {
-    const check = document.getElementById('toggle-bar');
-    // Si por alguna razón no encuentra el botón, asumimos false
-    const esModoBar = check ? check.checked : false;
-
-    // 1. CAMBIAR COLORES (CSS)
-    if (esModoBar) {
-        document.body.classList.add('modo-bar-activado');
-    } else {
-        document.body.classList.remove('modo-bar-activado');
-    }
-
-    // 2. REORDENAR LAS SECCIONES DE PRODUCTOS (Abajo)
-    if (typeof todosLosProductos !== 'undefined') {
-        renderizarMenu(todosLosProductos);
-    }
-
-    // 3. REORDENAR LOS BOTONES DE FILTRO (Arriba)
-    reordenarBotonesFiltro(esModoBar);
-}
-
-function reordenarBotonesFiltro(modoBar) {
-    // Buscamos el contenedor de los botones (el <nav>)
-    // Asumimos que es el único <nav> o buscamos por clase si tienes
-    const nav = document.querySelector('nav'); 
-    if (!nav) return;
-
-    // Convertimos la lista de hijos (botones) en un Array real para poder ordenarlo
-    const botones = Array.from(nav.children);
-
-    // Lista de palabras clave que definen qué es "Del Bar"
-    const vipsBar = [
-        'cervezas', 'cocteles', 'vinos', 'tragos', 
-        'cremas', 'picaderas', 'bebidas'
-    ];
-
-    botones.sort((a, b) => {
-        // EXCEPCIÓN: El botón "Inicio" SIEMPRE va primero
-        if (a.innerText.includes('Inicio')) return -1;
-        if (b.innerText.includes('Inicio')) return 1;
-
-        // Obtenemos el texto del onclick para saber qué categoría es
-        // ej: "filtrar('cervezas', this)"
-        const onclickA = (a.getAttribute('onclick') || '').toLowerCase();
-        const onclickB = (b.getAttribute('onclick') || '').toLowerCase();
-
-        // Verificamos si son VIP
-        const esVipA = vipsBar.some(palabra => onclickA.includes(palabra));
-        const esVipB = vipsBar.some(palabra => onclickB.includes(palabra));
-
-        if (modoBar) {
-            // --- MODO FIESTA: Bebidas primero ---
-            if (esVipA && !esVipB) return -1; // A sube
-            if (!esVipA && esVipB) return 1;  // B sube
-            return 0;
-        } else {
-            // --- MODO RESTAURANTE: Bebidas al final ---
-            // Invertimos la lógica para mandar las bebidas al fondo
-            if (esVipA && !esVipB) return 1;  // A baja
-            if (!esVipA && esVipB) return -1; // B baja
-            return 0;
-        }
-    });
-
-    // Aplicamos el nuevo orden al HTML
-    botones.forEach(btn => nav.appendChild(btn));
 }
 // FUNCIÓN AUXILIAR: CALCULAR Y MOSTRAR TOTAL CON DOMICILIO
 function actualizarTextoTotalModal() {
